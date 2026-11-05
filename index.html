@@ -346,7 +346,9 @@ input[type=range]{width:100%;accent-color:var(--accent);height:24px;margin:0}
 .stamp.s-down{top:24px;right:18px;color:#F0707A;transform:rotate(12deg)}
 .stamp.s-heart{top:24px;left:0;right:0;margin:auto;width:max-content;color:#F2C14E}
 .stamp.s-skip{top:42%;left:0;right:0;margin:auto;width:max-content;color:#C9CAD2}
-.dacts{display:flex;gap:14px;justify-content:center}
+.dacts{display:flex;gap:10px;justify-content:center;align-items:flex-start}
+.dsep{width:1px;align-self:stretch;margin:6px 4px 22px;background:var(--line)}
+@media (max-width:480px){.dacts{gap:4px}.dacts .dbtn{width:56px;font-size:11px}.dacts .dbtn .c{width:48px;height:48px;font-size:21px}.dacts .dbtn .c svg{width:21px;height:21px}.dsep{margin-inline:0}}
 .dbtn{display:grid;justify-items:center;gap:7px;width:72px;background:none;border:0;padding:0;color:var(--muted);font-size:12px;font-weight:700;line-height:1.2;text-align:center}
 .dbtn .c{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--line);background:var(--bg-2);font-size:24px;line-height:1;transition:transform .15s, border-color .2s, background .2s}
 .dbtn .c svg{width:24px;height:24px}
@@ -354,7 +356,8 @@ input[type=range]{width:100%;accent-color:var(--accent);height:24px;margin:0}
 .dbtn:active .c{transform:scale(.92)}
 .dbtn[data-act="down"]:hover .c{border-color:#F0707A}
 .dbtn[data-act="up"]:hover .c{border-color:#5BD6A0}
-.dbtn[data-act="skip"]:hover .c{border-color:var(--muted)}
+.dbtn[data-act="skip"]:hover .c,.dbtn[data-act="meh"]:hover .c{border-color:var(--muted)}
+.dbtn[data-act="later"]:hover .c{border-color:var(--gold);color:var(--gold)}
 .dbtn.heart .c{color:var(--accent)}
 .dbtn.heart:hover .c{border-color:var(--accent);background:color-mix(in srgb, var(--accent) 14%, var(--bg-2))}
 .dbtn[disabled], .link[disabled]{opacity:.4;pointer-events:none}
@@ -415,6 +418,7 @@ dialog[open]{animation:dlg .3s cubic-bezier(.2,.7,.2,1)}
 .mark{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-weight:700;font-size:14px;transition:all .2s}
 .mark:hover{border-color:var(--muted)}
 .mark[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.later-btn[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#1a1405}
 .mark[data-mark="heart"][aria-pressed="true"]{background:var(--accent-strong);border-color:var(--accent-strong);color:#fff}
 .d-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
 .d-reco{padding:0 32px 32px}
@@ -662,12 +666,15 @@ dialog[open]{animation:dlg .3s cubic-bezier(.2,.7,.2,1)}
           <p class="sr" id="deckLive" aria-live="polite"></p>
           <div class="dacts" id="deckActs">
             <button class="dbtn" type="button" data-act="down" aria-label="Pas aimé"><span class="c">👎</span>Pas aimé</button>
-            <button class="dbtn" type="button" data-act="skip" aria-label="Je ne l'ai pas vu"><span class="c"><svg class="i"><use href="#i-eyeoff"/></svg></span>Pas vu</button>
+            <button class="dbtn" type="button" data-act="meh" aria-label="Bof, ni aimé ni détesté"><span class="c">😐</span>Bof</button>
             <button class="dbtn" type="button" data-act="up" aria-label="Aimé"><span class="c">👍</span>Aimé</button>
             <button class="dbtn heart" type="button" data-act="heart" aria-label="Coup de cœur"><span class="c"><svg class="i"><use href="#i-heart"/></svg></span>Coup de cœur</button>
+            <span class="dsep" aria-hidden="true"></span>
+            <button class="dbtn" type="button" data-act="skip" aria-label="Je ne l'ai pas vu"><span class="c"><svg class="i"><use href="#i-eyeoff"/></svg></span>Pas vu</button>
+            <button class="dbtn" type="button" data-act="later" aria-label="À regarder plus tard"><span class="c"><svg class="i"><use href="#i-bookmark"/></svg></span>À regarder plus tard</button>
           </div>
           <button class="link" id="undoBtn" type="button" style="background:none;border:0;display:inline-flex;gap:6px;align-items:center" disabled><svg class="i" style="width:16px;height:16px"><use href="#i-undo"/></svg>Annuler le dernier choix</button>
-          <p class="hint kbd">Sur ordinateur : ← pas aimé · → aimé · ↑ coup de cœur · ↓ pas vu. Sur téléphone, glisse la carte dans la direction voulue.</p>
+          <p class="hint kbd">Sur ordinateur : ← pas aimé · → aimé · ↑ coup de cœur · ↓ pas vu · B bof · L à regarder plus tard. Sur téléphone, glisse la carte dans la direction voulue.</p>
         </div>
         <div class="taste" id="taste"></div>
       </div>
@@ -842,7 +849,7 @@ const PERIODS = [
 const COUNTRIES = [['','Tous les pays'],['FR','France'],['US','États-Unis'],['GB','Royaume-Uni'],['BE','Belgique'],['CA','Canada'],['IT','Italie'],['ES','Espagne'],['DE','Allemagne'],['JP','Japon'],['KR','Corée du Sud'],['CN','Chine'],['HK','Hong Kong'],['IN','Inde'],['MX','Mexique'],['BR','Brésil'],['AR','Argentine'],['DK','Danemark'],['SE','Suède'],['NO','Norvège'],['IE','Irlande'],['AU','Australie'],['NZ','Nouvelle-Zélande']];
 const LANGS = [['','Toutes les langues'],['fr','Français'],['en','Anglais'],['es','Espagnol'],['it','Italien'],['de','Allemand'],['ja','Japonais'],['ko','Coréen'],['zh','Chinois'],['hi','Hindi'],['pt','Portugais'],['da','Danois'],['sv','Suédois']];
 const DECADES = [[1970,1979,'Années 70'],[1980,1989,'Années 80'],[1990,1999,'Années 90'],[2000,2009,'Années 2000'],[2010,2019,'Années 2010'],[2020,Y,'Années 2020']];
-const MARK_ICON = { down:'👎', up:'👍' };
+const MARK_ICON = { down:'👎', meh:'😐', up:'👍' };
 let GENRES = {};                       // noms de tous les genres (films + séries), pour les étiquettes
 let GENRE_LIST = { movie:{}, tv:{} };   // genres proposés dans les filtres
 let PROV_BY = { movie:[], tv:[] };
@@ -889,9 +896,12 @@ const remember = m => { MOVIES.set(m.id, { ...(MOVIES.get(m.id) || {}), ...summa
 
 /* Marqueurs : 👎 pas aimé, 👍 je le reverrais, ♥ coup de cœur (= favori) */
 let MARKS = store.json('marks', {}) || {};
+/* « À regarder plus tard » : liste à part, jamais comptée comme vu */
+let LATER = store.json('later', {}) || {};
+const saveLater = () => store.set('later', JSON.stringify(LATER));
 function setMark(m, s, force = false){
   if(!s || (!force && MARKS[m.id]?.s === s)) delete MARKS[m.id];
-  else MARKS[m.id] = { ...summary(m), s, t:Date.now() };
+  else{ MARKS[m.id] = { ...summary(m), s, t:Date.now() }; if(LATER[m.id]){ delete LATER[m.id]; saveLater(); syncLater(m.id) } }
   store.set('marks', JSON.stringify(MARKS));
   syncMarks(m.id);
 }
@@ -1007,6 +1017,16 @@ function syncMarks(id){
   updateFavDot();
   onRated(id);
   if(state.view === 'selection') renderSelection();
+}
+function syncLater(id){
+  $$('#sheet .later-btn').forEach(b => { if(+b.dataset.id === +id) b.setAttribute('aria-pressed', String(!!LATER[id])) });
+  if(state.view === 'selection') renderSelection();
+}
+function toggleLater(m){
+  if(LATER[m.id]) delete LATER[m.id]; else LATER[m.id] = { ...summary(m), t:Date.now() };
+  saveLater(); syncLater(m.id);
+  if(state.view === 'pour-toi') renderTaste();
+  return !!LATER[m.id];
 }
 function updateFavDot(){
   const n = Object.values(MARKS).filter(m => m.s === 'heart').length;
@@ -1331,6 +1351,8 @@ function setPanel(open){
 const ofKind = list => list.filter(m => isTV(m.id) === TVK());
 const SEL_TABS = [
   { id:'heart', label:'♥ Coups de cœur', list:() => ofKind(Object.values(MARKS)).filter(m => m.s === 'heart'), empty:'Touche le cœur sur une affiche pour garder un film ici.' },
+  { id:'meh', label:'😐 Bof', list:() => ofKind(Object.values(MARKS)).filter(m => m.s === 'meh'), empty:'Les films « Bof » apparaîtront ici : ni aimés, ni détestés.' },
+  { id:'later', label:'🕒 À regarder', list:() => ofKind(Object.values(LATER)), empty:'Ajoute des films avec « À regarder plus tard » depuis « Pour toi » ou une fiche.' },
   { id:'up', label:'👍 À revoir', list:() => ofKind(Object.values(MARKS)).filter(m => m.s === 'up'), empty:'Dans la fiche d\'un film, choisis « Je le reverrais ».' },
   { id:'down', label:'👎 Pas aimés', list:() => ofKind(Object.values(MARKS)).filter(m => m.s === 'down'), empty:'Les films que tu n\'as pas aimés n\'apparaîtront plus dans « Surprends-moi ».' },
   { id:'seen', label:'Tous mes films vus', list:() => ofKind(Object.values(MARKS)), empty:'Indique dans la fiche d\'un film si tu l\'as déjà vu.' },
@@ -1350,7 +1372,7 @@ function renderSelection(){
    Geste : gauche = pas aimé, droite = aimé, haut = coup de cœur, bas = pas vu.
    ===================================================================== */
 const MIN_RATED = 5;
-const WEIGHT = { heart:3, up:2, down:-2 };
+const WEIGHT = { heart:3, up:2, meh:0, down:-2 };
 let SKIPPED = store.json('skipped', {}) || {};
 function saveSkipped(){
   const ks = Object.keys(SKIPPED);
@@ -1361,13 +1383,14 @@ let DECK = [], UNDO = [], DECK_LOADING = false, DECK_STOP = false, DECK_ERR = ''
 
 /* ----- Profil de goûts (calculé à partir des marqueurs) ----- */
 function tasteProfile(){
-  const p = { n:0, g:{}, lang:{}, c:{ heart:0, up:0, down:0 } };
+  const p = { n:0, g:{}, lang:{}, c:{ heart:0, up:0, meh:0, down:0 }, later:0 };
   for(const m of ofKind(Object.values(MARKS))){
     const w = WEIGHT[m.s]; if(w == null) continue;
     p.n++; p.c[m.s]++;
     (m.genre_ids || []).forEach(id => p.g[id] = (p.g[id] || 0) + w);
     if(m.original_language) p.lang[m.original_language] = (p.lang[m.original_language] || 0) + w;
   }
+  for(const m of ofKind(Object.values(LATER))){ p.later++; (m.genre_ids || []).forEach(id => p.g[id] = (p.g[id] || 0) + .5) }
   p.maxG = Math.max(1, ...Object.values(p.g).map(Math.abs));
   p.maxL = Math.max(1, ...Object.values(p.lang).map(Math.abs));
   return p;
@@ -1399,7 +1422,7 @@ async function fillDeck(){
     if(!ok.length) throw res[0].reason;
     const seen = new Set(DECK.map(m => m.id));
     const fresh = shuffle(ok.flatMap(r => r.value.results)).filter(m => {
-      if(!m.poster_path || MARKS[m.id] || SKIPPED[m.id] || seen.has(m.id)) return false;
+      if(!m.poster_path || MARKS[m.id] || SKIPPED[m.id] || LATER[m.id] || seen.has(m.id)) return false;
       seen.add(m.id); return true;
     });
     fresh.forEach(remember);
@@ -1449,7 +1472,7 @@ function renderDeck(){
 /* ----- Actions : noter ou écarter la carte du dessus ----- */
 function flyOut(card, kind){
   const W = window.innerWidth, H = window.innerHeight;
-  const to = { up:[W * 1.1, -40, 18], down:[-W * 1.1, -40, -18], heart:[0, -H, 0], skip:[0, H, 0] }[kind];
+  const to = { up:[W * 1.1, -40, 18], down:[-W * 1.1, -40, -18], heart:[0, -H, 0], skip:[0, H, 0], meh:[-W * .5, H * .7, -10], later:[W * .5, H * .7, 10] }[kind];
   card.style.transition = 'transform .3s ease-in, opacity .3s';
   card.style.transform = `translate(${to[0]}px, ${to[1]}px) rotate(${to[2]}deg)`;
   card.style.opacity = '0';
@@ -1459,7 +1482,9 @@ function act(kind){
   DECK_BUSY = true;
   const m = DECK.shift();
   const card = $('#deck .dcard.top');
-  if(kind === 'skip'){ SKIPPED[m.id] = Date.now(); saveSkipped() } else setMark(m, kind, true);
+  if(kind === 'skip'){ SKIPPED[m.id] = Date.now(); saveSkipped() }
+  else if(kind === 'later'){ LATER[m.id] = { ...summary(m), t:Date.now() }; saveLater() }
+  else setMark(m, kind, true);
   UNDO.push({ m, kind }); if(UNDO.length > 20) UNDO.shift();
   if(card) flyOut(card, kind);
   setTimeout(() => { DECK_BUSY = false; renderDeck(); renderTaste(); maybeReco() }, 280);
@@ -1468,6 +1493,7 @@ function undo(){
   if(DECK_BUSY) return;
   const u = UNDO.pop(); if(!u) return;
   if(u.kind === 'skip'){ delete SKIPPED[u.m.id]; saveSkipped() }
+  else if(u.kind === 'later'){ delete LATER[u.m.id]; saveLater() }
   else{ delete MARKS[u.m.id]; store.set('marks', JSON.stringify(MARKS)); syncMarks(u.m.id) }
   DECK.unshift(u.m);
   renderDeck(); renderTaste();
@@ -1513,7 +1539,7 @@ $('#undoBtn').addEventListener('click', undo);
 document.addEventListener('keydown', e => {
   if(state.view !== 'pour-toi' || $('#detail').open || $('#settings').open || e.metaKey || e.ctrlKey || e.altKey) return;
   if(!e.target.closest || e.target.closest('input, select, textarea') || !e.target.closest('.deck-col')) return;
-  const k = { ArrowLeft:'down', ArrowRight:'up', ArrowUp:'heart', ArrowDown:'skip' }[e.key];
+  const k = { ArrowLeft:'down', ArrowRight:'up', ArrowUp:'heart', ArrowDown:'skip', b:'meh', B:'meh', l:'later', L:'later' }[e.key];
   if(k){ e.preventDefault(); act(k) }
   else if(e.key === 'Backspace'){ e.preventDefault(); undo() }
 });
@@ -1524,7 +1550,7 @@ function renderTaste(){
   const p = tasteProfile(), sk = Object.keys(SKIPPED).filter(k => isTV(k) === TVK()).length, need = Math.max(0, MIN_RATED - p.n);
   const rank = genreRanking(p).slice(0, 5), max = rank.length ? rank[0][1] : 1;
   $('#taste').innerHTML = T(`<h2>Tes goûts</h2>
-    <p class="taste-line"><span><b>${p.n}</b> film${p.n > 1 ? 's' : ''} noté${p.n > 1 ? 's' : ''}</span><span><b>${p.c.heart}</b> ♥</span><span><b>${p.c.up}</b> 👍</span><span><b>${p.c.down}</b> 👎</span><span><b>${sk}</b> pas vu${sk > 1 ? 's' : ''}</span></p>
+    <p class="taste-line"><span><b>${p.n}</b> film${p.n > 1 ? 's' : ''} noté${p.n > 1 ? 's' : ''}</span><span><b>${p.c.heart}</b> ♥</span><span><b>${p.c.up}</b> 👍</span><span><b>${p.c.meh}</b> 😐</span><span><b>${p.c.down}</b> 👎</span><span><b>${p.later}</b> 🕒</span><span><b>${sk}</b> pas vu${sk > 1 ? 's' : ''}</span></p>
     ${need
       ? `<div class="meter" role="progressbar" aria-valuemin="0" aria-valuemax="${MIN_RATED}" aria-valuenow="${p.n}"><div style="width:${p.n / MIN_RATED * 100}%"></div></div>
          <p class="hint">Encore ${need} film${need > 1 ? 's' : ''} noté${need > 1 ? 's' : ''} pour débloquer tes recommandations. « Pas vu » ne compte pas : note seulement les films que tu connais.</p>`
@@ -1546,7 +1572,7 @@ async function buildRecos(p, force = false){
     const top = topGenres(p, 3), bad = badGenres(p);
     const cand = new Map();
     const add = (m, why, bonus) => {
-      if(!m.poster_path || MARKS[m.id]) return;
+      if(!m.poster_path || MARKS[m.id] || LATER[m.id]) return;
       const c = cand.get(m.id) || { m, bonus:0, why:'' };
       c.bonus += bonus; if(!c.why) c.why = why;
       cand.set(m.id, c);
@@ -1677,12 +1703,14 @@ async function openDetail(id, { surprise = false } = {}){
           <div class="d-actions">
             ${trailer ? `<a class="btn primary" href="https://www.youtube.com/watch?v=${encodeURIComponent(trailer.key)}" target="_blank" rel="noopener">${ico('play')}Bande-annonce</a>` : ''}
             ${fr.link ? `<a class="btn" href="${esc(fr.link)}" target="_blank" rel="noopener">Toutes les offres</a>` : ''}
+            <button class="btn later-btn" type="button" data-id="${m.id}" aria-pressed="${!!LATER[m.id]}">${ico('bookmark')}À regarder plus tard</button>
             <a class="btn" href="https://www.themoviedb.org/${tv ? 'tv/' + (-m.id) : 'movie/' + m.id}" target="_blank" rel="noopener">${ico('ext')}Fiche TMDB</a>
           </div>
           <div class="d-grid">
             <div class="d-sec"><h4>${tv ? 'Déjà vue ?' : 'Déjà vu ?'}</h4>
               <div class="marks">
                 <button class="mark" type="button" data-mark="down" aria-pressed="${s === 'down'}">👎 Pas aimé</button>
+                <button class="mark" type="button" data-mark="meh" aria-pressed="${s === 'meh'}">😐 Bof</button>
                 <button class="mark" type="button" data-mark="up" aria-pressed="${s === 'up'}">👍 ${tv ? 'Je la reverrais' : 'Je le reverrais'}</button>
                 <button class="mark" type="button" data-mark="heart" aria-pressed="${s === 'heart'}"><svg class="i" style="width:16px;height:16px"><use href="#i-heart"/></svg>Coup de cœur</button>
               </div>
@@ -1871,10 +1899,12 @@ document.addEventListener('click', e => {
 
 /* Marqueurs dans la fiche : on garde l'id du film affiché */
 $('#sheet').addEventListener('click', e => {
+  const lb = e.target.closest('.later-btn');
+  if(lb){ const mm = MOVIES.get(+lb.dataset.id); if(mm) toast(toggleLater(mm) ? 'Ajouté à « À regarder »' : 'Retiré de « À regarder »'); return }
   const b = e.target.closest('.mark'); if(!b) return;
   const id = DETAIL_ID; const m = MOVIES.get(id); if(!m) return;
   setMark(m, b.dataset.mark);
-  toast(MARKS[id] ? { down:'Noté : pas aimé', up:'Noté : à revoir', heart:'Ajouté à tes coups de cœur' }[MARKS[id].s] : 'Marqueur retiré');
+  toast(MARKS[id] ? { down:'Noté : pas aimé', meh:'Noté : bof', up:'Noté : à revoir', heart:'Ajouté à tes coups de cœur' }[MARKS[id].s] : 'Marqueur retiré');
 });
 
 $('#hdrSearch').addEventListener('click', () => {
