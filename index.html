@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Idées de film</title>
+<title>Idées de films – Quel film regarder ce soir ?</title>
+<meta name="description" content="Trouve quel film regarder ce soir : films populaires du jour, de la semaine ou de tous les temps, filtrés par genre, année, pays et plateforme (Netflix, Prime, Disney+…).">
+<meta name="theme-color" content="#0f0d12">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Schibsted+Grotesk:wght@400;500;700&display=swap">
@@ -80,6 +82,13 @@ label.inline{display:flex;align-items:center;gap:8px;color:var(--muted);font-siz
 .card:hover .poster img{transform:scale(1.04)}
 .rank{position:absolute;top:0;left:0;background:var(--bg);color:var(--accent);font:800 20px/1 var(--f-display);padding:6px 9px 5px;border-bottom-right-radius:6px}
 .score{position:absolute;bottom:8px;right:8px;background:rgba(15,13,18,.85);border-radius:4px;padding:2px 7px;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
+.badge{position:absolute;top:8px;right:8px;width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:rgba(15,13,18,.88);font-size:15px;line-height:1}
+.badge[data-s="heart"]{color:#ff5d7a}
+.marks{display:flex;flex-wrap:wrap;gap:8px}
+.mark{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:7px 14px;cursor:pointer;font-weight:500}
+.mark:hover{border-color:var(--muted)}
+.mark[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+.mark[data-mark="heart"][aria-pressed="true"]{background:#ff5d7a;border-color:#ff5d7a;color:#2a0710}
 .card .t{font-weight:700;line-height:1.25;overflow-wrap:anywhere}
 .card .m{color:var(--muted);font-size:13px;margin-top:-6px}
 .noposter{display:grid;place-items:center;height:100%;padding:12px;text-align:center;font:600 20px/1.1 var(--f-display);color:var(--muted)}
@@ -128,7 +137,7 @@ footer .wrap{padding-block:18px;color:var(--muted);font-size:13px;display:flex;g
 <header>
   <div class="wrap">
     <div>
-      <h1>Idées <span>de</span> film</h1>
+      <h1>Idées <span>de</span> films</h1>
       <p class="tag">Ce que tout le monde regarde, filtré selon tes envies.</p>
     </div>
     <button class="icon-btn" id="keyBtn" type="button">Clé TMDB</button>
@@ -165,6 +174,16 @@ footer .wrap{padding-block:18px;color:var(--muted);font-size:13px;display:flex;g
           <option value="vote_average.desc">Les mieux notés</option>
           <option value="primary_release_date.desc">Les plus récents</option>
           <option value="revenue.desc">Box-office</option>
+        </select>
+      </label>
+      <label class="inline" for="show">Afficher
+        <select id="show">
+          <option value="all">Tous les films</option>
+          <option value="unseen">Pas encore vus</option>
+          <option value="heart">❤ Mes coups de cœur</option>
+          <option value="up">👍 À revoir</option>
+          <option value="down">👎 Pas aimés</option>
+          <option value="seen">Tous mes films vus</option>
         </select>
       </label>
       <span class="spacer"></span>
@@ -268,6 +287,22 @@ const state = {
   page:0, totalPages:1, results:[], seen:new Set(), loading:false
 };
 let GENRES = {};
+state.show = 'all';
+
+/* ---------- Mes films vus (stockés dans ce navigateur) ---------- */
+const MARKS_LABEL = { down:'👎', up:'👍', heart:'♥' };
+let MARKS = {};
+try{ MARKS = JSON.parse(store.get('marks') || '{}') || {} }catch(e){ MARKS = {} }
+function saveMarks(){ store.set('marks', JSON.stringify(MARKS)) }
+function setMark(m, s){
+  if(!s || MARKS[m.id]?.s === s) delete MARKS[m.id];
+  else MARKS[m.id] = { s, t:Date.now(), id:m.id, title:m.title, poster_path:m.poster_path,
+    release_date:m.release_date, vote_average:m.vote_average, original_language:m.original_language,
+    genre_ids: m.genre_ids || (m.genres||[]).map(g=>g.id) };
+  saveMarks();
+}
+const isPersonal = () => ['heart','up','down','seen'].includes(state.show);
+const keepForShow = m => state.show !== 'unseen' || !MARKS[m.id];
 
 /* ---------- API ---------- */
 function apiKey(){ return store.get('tmdbKey') || '' }
@@ -355,22 +390,46 @@ function cardHTML(m, rank){
   const img = m.poster_path
     ? `<img loading="lazy" src="${IMG}w342${m.poster_path}" alt="">`
     : `<div class="noposter">${esc(m.title)}</div>`;
+  const mk = MARKS[m.id];
   return `<button class="card" type="button" data-id="${m.id}">
-    <div class="poster">${img}<span class="rank">${rank}</span><span class="score">★ ${fmtVote(m.vote_average)}</span></div>
+    <div class="poster">${img}${rank ? `<span class="rank">${rank}</span>` : ''}<span class="badge" data-s="${mk?.s||''}" ${mk ? '' : 'hidden'} aria-label="Déjà vu">${mk ? MARKS_LABEL[mk.s] : ''}</span><span class="score">★ ${fmtVote(m.vote_average)}</span></div>
     <span class="t">${esc(m.title)}</span>
     <span class="m">${year(m.release_date)}${genres ? ' · '+esc(genres) : ''}</span>
   </button>`;
 }
 
+function renderPersonal(){
+  const grid = $('#grid');
+  const list = Object.values(MARKS)
+    .filter(m => state.show === 'seen' || m.s === state.show)
+    .filter(passesClientFilters)
+    .sort((a,b) => b.t - a.t);
+  state.results = list;
+  $('#moreBtn').hidden = true;
+  const names = { heart:'coups de cœur', up:'films à revoir', down:'films pas aimés', seen:'films vus' };
+  $('#periodNote').textContent = `Tes ${names[state.show]} : ${list.length} film${list.length>1?'s':''}, du plus récemment marqué au plus ancien.`;
+  grid.innerHTML = list.length
+    ? list.map(m => cardHTML(m, 0)).join('')
+    : `<p class="empty" style="grid-column:1/-1">Aucun film ici pour l'instant. Ouvre une fiche et indique si tu l'as vu avec 👎, 👍 ou ♥.</p>`;
+}
+
 async function load(reset){
+  if(isPersonal()){ renderPersonal(); return; }
+  $('#periodNote').textContent = period().note;
   if(state.loading) return;
   state.loading = true;
   const grid = $('#grid'), more = $('#moreBtn');
   if(reset){ state.page=0; state.totalPages=1; state.results=[]; state.seen.clear(); grid.innerHTML='<p class="empty" style="grid-column:1/-1">Chargement…</p>'; }
   more.disabled = true; more.textContent = 'Chargement…';
   try{
-    const items = (await fetchPage()).filter(m => !state.seen.has(m.id));
-    items.forEach(m => state.seen.add(m.id));
+    // En mode « Pas encore vus », on lit quelques pages de plus pour remplir la grille
+    let items = [], tries = 0;
+    do{
+      const batch = (await fetchPage()).filter(m => !state.seen.has(m.id));
+      batch.forEach(m => state.seen.add(m.id));
+      items = items.concat(batch.filter(keepForShow));
+      tries++;
+    }while(state.show === 'unseen' && items.length < 12 && state.page < state.totalPages && tries < 4);
     if(reset) grid.innerHTML = '';
     const start = state.results.length;
     state.results.push(...items);
@@ -417,6 +476,13 @@ async function openDetail(id){
           ${m.original_title && m.original_title !== m.title ? `<div class="d-meta">Titre original : ${esc(m.original_title)}</div>` : ''}
           ${m.tagline ? `<p class="d-tagline">${esc(m.tagline)}</p>` : ''}
           <p>${esc(m.overview || 'Pas de résumé en français pour ce film.')}</p>
+          <div class="d-section"><h4>Déjà vu ?</h4>
+            <div class="marks" id="dMarks">
+              <button class="mark" type="button" data-mark="down" aria-pressed="${MARKS[m.id]?.s==='down'}">👎 Pas aimé</button>
+              <button class="mark" type="button" data-mark="up" aria-pressed="${MARKS[m.id]?.s==='up'}">👍 Je le reverrais</button>
+              <button class="mark" type="button" data-mark="heart" aria-pressed="${MARKS[m.id]?.s==='heart'}">♥ Coup de cœur</button>
+            </div>
+          </div>
           ${director ? `<div class="d-section"><h4>Réalisation</h4>${esc(director)}</div>` : ''}
           ${cast.length ? `<div class="d-section"><h4>Avec</h4><div class="cast">${cast.map(c=>`<span><b>${esc(c.name)}</b> <i>${esc(c.character||'')}</i></span>`).join('')}</div></div>` : ''}
           ${provRow('En streaming (abonnement)', prov.flatrate)}
@@ -431,6 +497,16 @@ async function openDetail(id){
         </div>
       </div>`;
     $('#dClose').onclick = () => dlg.close();
+    $('#dMarks').onclick = e => {
+      const b = e.target.closest('.mark'); if(!b) return;
+      setMark(m, b.dataset.mark);
+      const cur = MARKS[m.id]?.s;
+      $('#dMarks').querySelectorAll('.mark').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.mark === cur)));
+      document.querySelectorAll(`.card[data-id="${m.id}"] .badge`).forEach(bd => {
+        bd.hidden = !cur; bd.dataset.s = cur || ''; bd.textContent = cur ? MARKS_LABEL[cur] : '';
+      });
+      if(isPersonal()) renderPersonal();
+    };
   }catch(e){
     dlg.innerHTML = `<div style="padding:30px"><p class="err">${esc(e.message)}</p><button class="btn" onclick="this.closest('dialog').close()">Fermer</button></div>`;
   }
@@ -481,8 +557,11 @@ function showSetup(msg){
 /* ---------- Événements ---------- */
 $('#periods').addEventListener('click', e=>{
   const b = e.target.closest('button'); if(!b) return;
-  state.period = b.dataset.p; renderPeriods(); load(true);
+  state.period = b.dataset.p;
+  if(isPersonal()){ state.show = 'all'; $('#show').value = 'all'; }
+  renderPeriods(); load(true);
 });
+$('#show').addEventListener('change', e=>{ state.show = e.target.value; load(true); });
 $('#sort').addEventListener('change', e=>{
   state.sort = e.target.value;
   if(period().trending && state.sort !== 'auto'){ state.period = 'all'; renderPeriods(); }
@@ -520,8 +599,11 @@ $('#moreBtn').addEventListener('click', ()=>load(false));
 $('#grid').addEventListener('click', e=>{ const c = e.target.closest('.card'); if(c) openDetail(c.dataset.id); });
 $('#surprise').addEventListener('click', ()=>{
   if(!state.results.length) return;
-  const pool = state.results.filter(m=>m.vote_average >= 6) ;
-  const list = pool.length ? pool : state.results;
+  // Hors liste perso, on ne propose jamais un film déjà vu
+  const base = isPersonal() ? state.results : state.results.filter(m => !MARKS[m.id]);
+  if(!base.length) return;
+  const pool = base.filter(m=>m.vote_average >= 6);
+  const list = pool.length ? pool : base;
   openDetail(list[Math.floor(Math.random()*list.length)].id);
 });
 $('#detail').addEventListener('click', e=>{ if(e.target === e.currentTarget) e.currentTarget.close(); });
