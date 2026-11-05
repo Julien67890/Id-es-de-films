@@ -207,6 +207,20 @@ svg.i{width:20px;height:20px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-
 .toolbar{position:sticky;top:calc(var(--hh) + env(safe-area-inset-top,0px));z-index:30;display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:14px;padding-block:12px;
   background:var(--bg);border-bottom:1px solid var(--line)}
 .toolbar .spacer{flex:1}
+.ex-top{display:grid;grid-template-rows:1fr;transition:grid-template-rows .3s cubic-bezier(.2,.7,.2,1)}
+.ex-top > div{overflow:hidden;min-height:0}
+.ico-only{width:44px;padding:0;display:inline-grid;place-items:center}
+.ico-only .chev{transition:transform .3s}
+.mini{font-weight:700;font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.mini b{color:var(--fg)}
+#v-explore.collapsed .ex-top{grid-template-rows:0fr}
+#v-explore.collapsed .ico-only .chev{transform:rotate(180deg)}
+#v-explore.collapsed .toolbar{flex-wrap:nowrap;margin-top:0}
+#v-explore.collapsed .toolbar > :not(#collapseBtn):not(.mini){display:none}
+.mini{cursor:pointer}
+#v-explore.collapsed #tags, #v-explore.collapsed #panel{display:none}
+#v-explore.collapsed .results{padding-top:16px}
+#v-explore:not(.collapsed) .mini{display:none}
 .toolbar .count{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--accent-strong);color:#fff;font-size:11px;font-weight:800}
 .sel{height:44px;padding:0 36px 0 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A3A5AE' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 12px center/16px no-repeat;
   appearance:none;-webkit-appearance:none;font-weight:600;font-size:14px;min-width:0;max-width:100%}
@@ -262,6 +276,61 @@ input[type=range]{width:100%;accent-color:var(--accent);height:24px;margin:0}
 /* ---------- Ma sélection ---------- */
 .stabs{display:flex;gap:6px;overflow-x:auto;padding-block:18px 18px;scrollbar-width:none}
 .stabs .seg b{font-variant-numeric:tabular-nums;margin-left:6px;opacity:.7}
+
+/* ---------- Pour toi : cartes à noter ---------- */
+.fy-top{display:grid;gap:30px;padding-block:6px 36px;justify-items:center}
+@media (min-width:900px){.fy-top{grid-template-columns:minmax(0,440px) minmax(0,1fr);justify-items:stretch;align-items:start;gap:64px}}
+.deck-col{display:grid;gap:16px;justify-items:center;min-width:0;width:100%}
+.deck-q{margin:0;font-size:20px;font-weight:800;letter-spacing:-.01em}
+.deck{position:relative;width:max(230px, min(400px, 100%, calc((100vh - 360px) * 2 / 3)));width:max(230px, min(400px, 100%, calc((100dvh - 360px) * 2 / 3)));aspect-ratio:2/3;outline:none}
+.deck:focus-visible{outline:2px solid var(--accent);outline-offset:8px;border-radius:22px}
+.dcard{position:absolute;inset:0;border-radius:18px;overflow:hidden;background:var(--card);box-shadow:var(--shadow);touch-action:none;user-select:none;-webkit-user-select:none;
+  transition:transform .3s cubic-bezier(.2,.7,.2,1), opacity .3s;will-change:transform}
+.dcard.top{cursor:grab}
+.dcard.top:active{cursor:grabbing}
+.dcard:not(.top){pointer-events:none}
+.dcard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.dcard .shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg, rgba(8,8,12,.97) 0%, rgba(8,8,12,.62) 34%, rgba(8,8,12,0) 60%)}
+.dcard.skel{background:linear-gradient(100deg, var(--card) 30%, color-mix(in srgb, var(--card) 70%, var(--fg) 8%) 50%, var(--card) 70%);background-size:300% 100%;animation:shine 1.4s linear infinite}
+.dinfo{position:absolute;left:0;right:0;bottom:0;padding:18px 18px 20px;display:grid;gap:7px;color:#F4F1ED;pointer-events:none}
+.dinfo h2{margin:0;font-size:clamp(20px, 5vw, 26px);line-height:1.1;font-weight:800;letter-spacing:-.01em;text-wrap:balance}
+.dinfo .dm{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;font-weight:700;color:#E8E5E0}
+.dinfo .dm .star{color:var(--gold)}
+.dinfo .ov{margin:0;font-size:13.5px;line-height:1.45;color:#D3D0CB;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.stamp{position:absolute;z-index:3;padding:6px 12px;border:3px solid currentColor;border-radius:10px;font-weight:800;font-size:18px;letter-spacing:.08em;text-transform:uppercase;
+  background:rgba(10,10,14,.4);opacity:0;pointer-events:none;white-space:nowrap}
+.stamp.s-up{top:24px;left:18px;color:#5BD6A0;transform:rotate(-12deg)}
+.stamp.s-down{top:24px;right:18px;color:#F0707A;transform:rotate(12deg)}
+.stamp.s-heart{top:24px;left:0;right:0;margin:auto;width:max-content;color:#F2C14E}
+.stamp.s-skip{top:42%;left:0;right:0;margin:auto;width:max-content;color:#C9CAD2}
+.dacts{display:flex;gap:14px;justify-content:center}
+.dbtn{display:grid;justify-items:center;gap:7px;width:72px;background:none;border:0;padding:0;color:var(--muted);font-size:12px;font-weight:700;line-height:1.2;text-align:center}
+.dbtn .c{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--line);background:var(--bg-2);font-size:24px;line-height:1;transition:transform .15s, border-color .2s, background .2s}
+.dbtn .c svg{width:24px;height:24px}
+.dbtn:hover .c{transform:translateY(-3px)}
+.dbtn:active .c{transform:scale(.92)}
+.dbtn[data-act="down"]:hover .c{border-color:#F0707A}
+.dbtn[data-act="up"]:hover .c{border-color:#5BD6A0}
+.dbtn[data-act="skip"]:hover .c{border-color:var(--muted)}
+.dbtn.heart .c{color:var(--accent)}
+.dbtn.heart:hover .c{border-color:var(--accent);background:color-mix(in srgb, var(--accent) 14%, var(--bg-2))}
+.dbtn[disabled], .link[disabled]{opacity:.4;pointer-events:none}
+.kbd{text-align:center;max-width:44ch}
+@media (pointer:coarse){.kbd{display:none}}
+@media (max-width:760px){#v-foryou .page-head p{display:none}#v-foryou .page-head{margin-bottom:0}#v-foryou .fy-top{gap:10px}.deck-col{gap:10px}.deck{width:max(200px, min(400px, 100%, calc((100vh - 400px) * 2 / 3)));width:max(200px, min(400px, 100%, calc((100dvh - 400px) * 2 / 3)))}}
+.taste{display:grid;gap:14px;align-content:start;min-width:0;width:100%;max-width:560px}
+.taste h2{margin:0;font-size:22px;font-weight:800;letter-spacing:-.01em}
+.taste h3{margin:6px 0 0;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.taste-line{display:flex;flex-wrap:wrap;gap:4px 16px;margin:0;color:var(--muted);font-size:14px}
+.taste-line b{color:var(--fg);font-variant-numeric:tabular-nums}
+.meter{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.meter div{height:100%;background:var(--accent);border-radius:4px;transition:width .4s}
+.bars{display:grid;gap:9px}
+.bar{display:grid;grid-template-columns:minmax(0,120px) 1fr;gap:12px;align-items:center;font-size:14px;font-weight:600}
+.bar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar i{display:block;height:8px;min-width:6px;border-radius:4px;background:var(--accent);transition:width .4s}
+.why{margin:0;color:var(--accent);font-size:12px;font-weight:700;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#recoSec{padding-block:6px 56px}
 
 /* ---------- Dialogues ---------- */
 dialog{border:0;padding:0;background:transparent;color:var(--fg);max-width:none;max-height:none}
@@ -357,6 +426,7 @@ dialog[open]{animation:dlg .3s cubic-bezier(.2,.7,.2,1)}
   <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></symbol>
   <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
   <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></symbol>
   <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></symbol>
   <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
@@ -364,6 +434,9 @@ dialog[open]{animation:dlg .3s cubic-bezier(.2,.7,.2,1)}
   <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></symbol>
   <symbol id="i-film" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/></symbol>
   <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="m19 16 .8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></symbol>
+  <symbol id="i-eyeoff" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 6.1A9.7 9.7 0 0 1 12 6c5 0 8.5 4.2 9.5 6-.4.8-1.3 2.1-2.6 3.3M6.5 7.6C4.6 9 3.4 10.9 2.5 12c1 1.8 4.5 6 9.5 6 1.5 0 2.8-.4 4-.9M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-4"/></symbol>
   <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
 </svg>
 
@@ -381,8 +454,8 @@ dialog[open]{animation:dlg .3s cubic-bezier(.2,.7,.2,1)}
     </a>
     <nav class="nav" aria-label="Navigation principale">
       <a href="#accueil" data-nav="accueil">Accueil</a>
-      <a href="#tendances" data-nav="tendances">Tendances</a>
-      <a href="#decouvrir" data-nav="decouvrir">Découvrir</a>
+      <a href="#explorer" data-nav="explorer">Explorer</a>
+      <a href="#pour-toi" data-nav="pour-toi">Pour toi</a>
       <a href="#selection" data-nav="selection">Ma sélection</a>
     </nav>
     <div class="hdr-actions">
@@ -403,7 +476,7 @@ dialog[open]{animation:dlg .3s cubic-bezier(.2,.7,.2,1)}
         <h1>Ton prochain <em>coup de cœur</em> commence ici.</h1>
         <p class="lead">Explore, découvre et trouve les films qui correspondent à tes envies.</p>
         <div class="hero-cta">
-          <a class="btn primary" href="#decouvrir"><svg class="i"><use href="#i-compass"/></svg>Découvrir les films</a>
+          <a class="btn primary" href="#explorer"><svg class="i"><use href="#i-compass"/></svg>Découvrir les films</a>
           <button class="btn glass" type="button" data-surprise><svg class="i"><use href="#i-dice"/></svg>Surprends-moi</button>
         </div>
         <div class="hero-film" id="heroFilm" hidden></div>
@@ -415,9 +488,10 @@ dialog[open]{animation:dlg .3s cubic-bezier(.2,.7,.2,1)}
   <!-- ============ TENDANCES / DÉCOUVRIR ============ -->
   <section id="v-explore" data-view hidden>
     <div class="wrap">
+      <div class="ex-top" id="exTop"><div>
       <div class="page-head">
-        <h1 id="exTitle">Tendances</h1>
-        <p id="exSub">Ce que le public regarde, du jour même à tous les temps.</p>
+        <h1 id="exTitle">Explorer</h1>
+        <p id="exSub">Les films les plus populaires, du jour même à tous les temps. Cherche un titre ou affine avec les filtres.</p>
         <form class="search" id="searchForm" role="search">
           <svg class="i"><use href="#i-search"/></svg>
           <label class="sr" for="q">Rechercher un film</label>
@@ -427,8 +501,11 @@ dialog[open]{animation:dlg .3s cubic-bezier(.2,.7,.2,1)}
       </div>
       <div class="periods" id="periods" role="group" aria-label="Période"></div>
       <p class="note" id="note"></p>
+      </div></div>
 
-      <div class="toolbar">
+      <div class="toolbar" id="toolbar">
+        <button class="btn sm ico-only" id="collapseBtn" type="button" aria-expanded="true" aria-controls="exTop" aria-label="Réduire le bloc de filtres"><svg class="i chev"><use href="#i-chev"/></svg></button>
+        <span class="mini" id="miniSum" hidden></span>
         <button class="btn sm" id="filtersBtn" type="button" aria-expanded="false" aria-controls="panel"><svg class="i"><use href="#i-sliders"/></svg><span id="filtersLbl">Filtres</span><span class="count" id="fCount" hidden>0</span></button>
         <label class="sr" for="sort">Trier les films</label>
         <select class="sel" id="sort">
@@ -515,6 +592,40 @@ dialog[open]{animation:dlg .3s cubic-bezier(.2,.7,.2,1)}
     </div>
   </section>
 
+  <!-- ============ POUR TOI ============ -->
+  <section id="v-foryou" data-view hidden>
+    <div class="wrap">
+      <div class="page-head">
+        <h1>Pour toi</h1>
+        <p>Réponds vite à quelques films : plus tu en notes, mieux on devine ce qui te plaira.</p>
+      </div>
+      <div class="fy-top">
+        <div class="deck-col">
+          <p class="deck-q">Tu as vu ce film ?</p>
+          <div class="deck" id="deck" tabindex="0" aria-label="Film à noter. Flèche gauche : pas aimé. Flèche droite : aimé. Flèche haut : coup de cœur. Flèche bas : pas vu."></div>
+          <p class="sr" id="deckLive" aria-live="polite"></p>
+          <div class="dacts" id="deckActs">
+            <button class="dbtn" type="button" data-act="down" aria-label="Pas aimé"><span class="c">👎</span>Pas aimé</button>
+            <button class="dbtn" type="button" data-act="skip" aria-label="Je ne l'ai pas vu"><span class="c"><svg class="i"><use href="#i-eyeoff"/></svg></span>Pas vu</button>
+            <button class="dbtn" type="button" data-act="up" aria-label="Aimé"><span class="c">👍</span>Aimé</button>
+            <button class="dbtn heart" type="button" data-act="heart" aria-label="Coup de cœur"><span class="c"><svg class="i"><use href="#i-heart"/></svg></span>Coup de cœur</button>
+          </div>
+          <button class="link" id="undoBtn" type="button" style="background:none;border:0;display:inline-flex;gap:6px;align-items:center" disabled><svg class="i" style="width:16px;height:16px"><use href="#i-undo"/></svg>Annuler le dernier choix</button>
+          <p class="hint kbd">Sur ordinateur : ← pas aimé · → aimé · ↑ coup de cœur · ↓ pas vu. Sur téléphone, glisse la carte dans la direction voulue.</p>
+        </div>
+        <div class="taste" id="taste"></div>
+      </div>
+
+      <section id="recoSec" hidden>
+        <div class="row-head">
+          <div><h2>Recommandés pour toi</h2><p>Choisis d'après tes coups de cœur et les films que tu as aimés. Ceux que tu as déjà notés n'apparaissent pas.</p></div>
+          <div class="row-ctl"><button class="btn sm" id="recoRefresh" type="button">Actualiser</button></div>
+        </div>
+        <div class="grid" id="recoGrid"></div>
+      </section>
+    </div>
+  </section>
+
   <!-- ============ MA SÉLECTION ============ -->
   <section id="v-selection" data-view hidden>
     <div class="wrap">
@@ -538,8 +649,8 @@ dialog[open]{animation:dlg .3s cubic-bezier(.2,.7,.2,1)}
 
 <nav class="tabbar" aria-label="Navigation">
   <a href="#accueil" data-nav="accueil"><svg class="i"><use href="#i-home"/></svg>Accueil</a>
-  <a href="#tendances" data-nav="tendances"><svg class="i"><use href="#i-flame"/></svg>Tendances</a>
-  <a href="#decouvrir" data-nav="decouvrir"><svg class="i"><use href="#i-compass"/></svg>Découvrir</a>
+  <a href="#explorer" data-nav="explorer"><svg class="i"><use href="#i-compass"/></svg>Explorer</a>
+  <a href="#pour-toi" data-nav="pour-toi"><svg class="i"><use href="#i-spark"/></svg>Pour toi</a>
   <a href="#selection" data-nav="selection"><svg class="i"><use href="#i-bookmark"/></svg>Sélection</a>
 </nav>
 
@@ -684,8 +795,8 @@ const remember = m => { MOVIES.set(m.id, { ...(MOVIES.get(m.id) || {}), ...summa
 
 /* Marqueurs : 👎 pas aimé, 👍 je le reverrais, ♥ coup de cœur (= favori) */
 let MARKS = store.json('marks', {}) || {};
-function setMark(m, s){
-  if(!s || MARKS[m.id]?.s === s) delete MARKS[m.id];
+function setMark(m, s, force = false){
+  if(!s || (!force && MARKS[m.id]?.s === s)) delete MARKS[m.id];
   else MARKS[m.id] = { ...summary(m), s, t:Date.now() };
   store.set('marks', JSON.stringify(MARKS));
   syncMarks(m.id);
@@ -780,6 +891,7 @@ function cardHTML(m, { i = 0, rank = 0 } = {}){
     <div class="meta">
       <h3 class="t">${esc(m.title)}</h3>
       <p class="m"><span>${year(m.release_date) || 'Date inconnue'}</span><span class="rt">${rt}</span><span>${esc(genres)}</span></p>
+      ${m._why ? `<p class="why">${esc(m._why)}</p>` : ''}
     </div>
   </article>`;
 }
@@ -798,6 +910,7 @@ function syncMarks(id){
   });
   $$('#sheet .mark').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mark === s)));
   updateFavDot();
+  onRated(id);
   if(state.view === 'selection') renderSelection();
 }
 function updateFavDot(){
@@ -814,7 +927,7 @@ function railSection(key, title, desc, more){
     <div class="row-head">
       <div><h2>${title}</h2>${desc ? `<p>${esc(desc)}</p>` : ''}</div>
       <div class="row-ctl">
-        ${more ? `<a class="link" href="#tendances" data-more="${key}">Tout voir</a>` : ''}
+        ${key === 'foryou' ? `<a class="link" href="#pour-toi">Affiner mes goûts</a>` : more ? `<a class="link" href="#explorer" data-more="${key}">Tout voir</a>` : ''}
         <button class="arrow" type="button" data-dir="-1" aria-label="Films précédents"><svg class="i"><use href="#i-left"/></svg></button>
         <button class="arrow" type="button" data-dir="1" aria-label="Films suivants"><svg class="i"><use href="#i-right"/></svg></button>
       </div>
@@ -850,12 +963,13 @@ function renderHome(){
     homeBuilt = false;
     return;
   }
-  if(homeBuilt){ refreshHistRow(); return }
+  if(homeBuilt){ refreshHistRow(); ensureForYouRow(); return }
   homeBuilt = true;
   loadHero();
   rows.innerHTML = HOME_ROWS.map(r => r.key === 'surprise'
     ? `<section class="surprise-band"><div><h2>🎲 Surprends-moi</h2><p>Laisse le hasard choisir un film bien noté que tu n'as pas encore vu, parmi ceux qui correspondent à tes filtres actifs.</p></div><button class="btn primary" type="button" data-surprise>${ico('dice')}Tirer un film au sort</button></section>`
     : (r.local && !HISTORY.length) ? '' : railSection(r.key, r.title, r.desc, r.more)).join('');
+  ensureForYouRow();
   HOME_ROWS.filter(r => r.get).forEach(async r => {
     const sec = $(`[data-row="${r.key}"]`); if(!sec) return;
     try{
@@ -1055,7 +1169,7 @@ function outputs(){
 }
 function updateCount(){
   const n = filterCount();
-  $('#fCount').hidden = !n; $('#fCount').textContent = n;
+  $('#fCount').hidden = !n; $('#fCount').textContent = n; updateMini();
 }
 function renderTags(){
   const T = [];
@@ -1080,6 +1194,20 @@ function resetFilters(){
   state.genres.clear(); state.providers.clear();
   syncControls(); loadExplore(true);
 }
+function setCollapsed(c){
+  const v = $('#v-explore'); v.classList.toggle('collapsed', c);
+  $('#exTop').inert = c;
+  $('#collapseBtn').setAttribute('aria-expanded', String(!c));
+  $('#collapseBtn').setAttribute('aria-label', c ? 'Afficher les filtres' : 'Réduire le bloc de filtres');
+  if(c) setPanel(false);
+  $('#miniSum').hidden = !c; updateMini();
+  store.set('exCollapsed', c ? '1' : '0');
+}
+function updateMini(){
+  const per = PERIODS.find(p => p.id === state.period)?.label || '';
+  const n = filterCount();
+  $('#miniSum').innerHTML = `<b>${esc(state.query ? `« ${state.query} »` : per)}</b>${n ? ` · ${n} filtre${n > 1 ? 's' : ''}` : ''}`;
+}
 function setPanel(open){
   $('#panel').classList.toggle('open', open);
   $('#panelIn').inert = !open;
@@ -1102,9 +1230,280 @@ function renderSelection(){
   $('#stabs').innerHTML = SEL_TABS.map(t => `<button class="seg" type="button" data-tab="${t.id}" aria-pressed="${t.id === state.selTab}">${t.label}<b>${t.list().length}</b></button>`).join('');
   const tab = SEL_TABS.find(t => t.id === state.selTab);
   const list = tab.id === 'history' ? tab.list() : tab.list().sort((a, b) => b.t - a.t);
-  $('#selGrid').innerHTML = list.length ? list.map((m, i) => cardHTML(m, { i })).join('') : stateHTML('', 'Rien ici pour l\'instant', tab.empty, `<a class="btn" href="#tendances">Voir les tendances</a>`);
+  $('#selGrid').innerHTML = list.length ? list.map((m, i) => cardHTML(m, { i })).join('') : stateHTML('', 'Rien ici pour l\'instant', tab.empty, `<a class="btn" href="#explorer">Voir les tendances</a>`);
   afterInsert($('#selGrid'));
   $('#selFoot').innerHTML = tab.id === 'history' && list.length ? `<button class="btn sm" type="button" data-clear-hist>Effacer l'historique</button>` : '';
+}
+
+/* =====================================================================
+   Pour toi : cartes à noter façon « swipe » + recommandations personnalisées
+   Geste : gauche = pas aimé, droite = aimé, haut = coup de cœur, bas = pas vu.
+   ===================================================================== */
+const MIN_RATED = 5;
+const WEIGHT = { heart:3, up:2, down:-2 };
+let SKIPPED = store.json('skipped', {}) || {};
+function saveSkipped(){
+  const ks = Object.keys(SKIPPED);
+  if(ks.length > 3000) ks.sort((a, b) => SKIPPED[a] - SKIPPED[b]).slice(0, ks.length - 3000).forEach(k => delete SKIPPED[k]);
+  store.set('skipped', JSON.stringify(SKIPPED));
+}
+let DECK = [], UNDO = [], DECK_LOADING = false, DECK_STOP = false, DECK_ERR = '', DECK_BUSY = false;
+
+/* ----- Profil de goûts (calculé à partir des marqueurs) ----- */
+function tasteProfile(){
+  const p = { n:0, g:{}, lang:{}, c:{ heart:0, up:0, down:0 } };
+  for(const m of Object.values(MARKS)){
+    const w = WEIGHT[m.s]; if(w == null) continue;
+    p.n++; p.c[m.s]++;
+    (m.genre_ids || []).forEach(id => p.g[id] = (p.g[id] || 0) + w);
+    if(m.original_language) p.lang[m.original_language] = (p.lang[m.original_language] || 0) + w;
+  }
+  p.maxG = Math.max(1, ...Object.values(p.g).map(Math.abs));
+  p.maxL = Math.max(1, ...Object.values(p.lang).map(Math.abs));
+  return p;
+}
+const genreRanking = p => Object.entries(p.g).filter(([id, v]) => v > 0 && GENRES[id]).sort((a, b) => b[1] - a[1]);
+const topGenres = (p, k) => genreRanking(p).slice(0, k).map(([id]) => id);
+const badGenres = p => Object.entries(p.g).filter(([, v]) => v <= -4).map(([id]) => id);
+
+/* ----- Pioche de films à noter : des films connus (beaucoup de votes), de toutes les époques ----- */
+async function fillDeck(){
+  if(DECK_LOADING) return;
+  DECK_LOADING = true;
+  try{
+    const p = tasteProfile();
+    const dec = DECADES[rand(0, DECADES.length - 1)];
+    const lte = iso(today);
+    const reqs = [
+      discover({ sort_by:'vote_count.desc', 'vote_count.gte':1500, 'primary_release_date.lte':lte, page:rand(1, 25) }),
+      discover({ sort_by:'vote_count.desc', 'vote_count.gte':700, 'primary_release_date.gte':`${dec[0]}-01-01`, 'primary_release_date.lte':`${Math.min(dec[1], Y)}-12-31`, page:rand(1, 6) })
+    ];
+    if(p.n >= 8){
+      const tg = topGenres(p, 2);
+      if(tg.length) reqs.push(discover({ sort_by:'popularity.desc', 'vote_count.gte':800, 'primary_release_date.lte':lte, with_genres:tg.join('|'), page:rand(1, 8) }));
+    }
+    const res = await Promise.allSettled(reqs);
+    const ok = res.filter(r => r.status === 'fulfilled');
+    if(!ok.length) throw res[0].reason;
+    const seen = new Set(DECK.map(m => m.id));
+    const fresh = shuffle(ok.flatMap(r => r.value.results)).filter(m => {
+      if(!m.poster_path || MARKS[m.id] || SKIPPED[m.id] || seen.has(m.id)) return false;
+      seen.add(m.id); return true;
+    });
+    fresh.forEach(remember);
+    DECK.push(...fresh);
+    if(!fresh.length) DECK_STOP = true;
+  }catch(e){ DECK_ERR = e.message || 'Chargement impossible.'; DECK_STOP = true }
+  finally{ DECK_LOADING = false }
+}
+
+function deckCardHTML(m, i){
+  const genres = (m.genre_ids || []).slice(0, 3).map(id => GENRES[id]).filter(Boolean).join(' · ');
+  const top = i === 0;
+  const style = top ? 'z-index:3' : `z-index:${3 - i};transform:translateY(${i * 12}px) scale(${1 - i * 0.05})`;
+  return `<div class="dcard${top ? ' top' : ''}" data-id="${m.id}" style="${style}"${top ? '' : ' aria-hidden="true"'}>
+    ${m.poster_path ? `<img src="${IMG}w500${m.poster_path}" alt="${top ? 'Affiche de ' + esc(m.title) : ''}" draggable="false" decoding="async">` : ''}
+    <div class="shade"></div>
+    ${top ? '<span class="stamp s-up">Aimé</span><span class="stamp s-down">Pas aimé</span><span class="stamp s-heart">Coup de cœur</span><span class="stamp s-skip">Pas vu</span>' : ''}
+    <div class="dinfo"><h2>${esc(m.title)}</h2>
+      <div class="dm">${year(m.release_date) ? `<span>${year(m.release_date)}</span>` : ''}<span class="star">★ ${fmtVote(m.vote_average)}</span>${genres ? `<span>${esc(genres)}</span>` : ''}</div>
+      ${top && m.overview ? `<p class="ov">${esc(trunc(m.overview, 170))}</p>` : ''}
+    </div></div>`;
+}
+function renderDeck(){
+  const deck = $('#deck'), acts = $('#deckActs');
+  $('#undoBtn').disabled = !UNDO.length;
+  if(!hasAccess()){
+    acts.hidden = true;
+    deck.innerHTML = stateHTML('', 'Connecte TMDB', 'Ajoute ta clé gratuite dans les paramètres pour recevoir des films à noter.', `<button class="btn primary" type="button" data-open-settings>${ico('gear')}Ouvrir les paramètres</button>`);
+    return;
+  }
+  acts.hidden = false;
+  if(DECK.length < 6 && !DECK_LOADING && !DECK_STOP) fillDeck().then(() => { if(state.view === 'pour-toi') renderDeck() });
+  $$('button', acts).forEach(b => b.disabled = !DECK.length);
+  if(!DECK.length){
+    deck.innerHTML = DECK_STOP
+      ? stateHTML(DECK_ERR ? 'err' : '', DECK_ERR ? 'Les films ne se chargent pas' : 'Plus de films à te proposer', DECK_ERR || 'Tu as fait le tour des films les plus connus. Reviens plus tard ou explore les tendances.',
+          DECK_ERR ? `<button class="btn" type="button" data-retry-deck>Réessayer</button>` : `<a class="btn" href="#explorer">Voir les tendances</a>`)
+      : '<div class="dcard skel top"></div>';
+    $('#deckLive').textContent = '';
+    return;
+  }
+  deck.innerHTML = DECK.slice(0, 3).map((m, i) => deckCardHTML(m, i)).join('');
+  $('#deckLive').textContent = `${DECK[0].title}${year(DECK[0].release_date) ? ', ' + year(DECK[0].release_date) : ''}`;
+  DECK.slice(1, 5).forEach(m => { if(m.poster_path){ const im = new Image(); im.src = IMG + 'w500' + m.poster_path } });
+}
+
+/* ----- Actions : noter ou écarter la carte du dessus ----- */
+function flyOut(card, kind){
+  const W = window.innerWidth, H = window.innerHeight;
+  const to = { up:[W * 1.1, -40, 18], down:[-W * 1.1, -40, -18], heart:[0, -H, 0], skip:[0, H, 0] }[kind];
+  card.style.transition = 'transform .3s ease-in, opacity .3s';
+  card.style.transform = `translate(${to[0]}px, ${to[1]}px) rotate(${to[2]}deg)`;
+  card.style.opacity = '0';
+}
+function act(kind){
+  if(DECK_BUSY || !DECK.length) return;
+  DECK_BUSY = true;
+  const m = DECK.shift();
+  const card = $('#deck .dcard.top');
+  if(kind === 'skip'){ SKIPPED[m.id] = Date.now(); saveSkipped() } else setMark(m, kind, true);
+  UNDO.push({ m, kind }); if(UNDO.length > 20) UNDO.shift();
+  if(card) flyOut(card, kind);
+  setTimeout(() => { DECK_BUSY = false; renderDeck(); renderTaste(); maybeReco() }, 280);
+}
+function undo(){
+  if(DECK_BUSY) return;
+  const u = UNDO.pop(); if(!u) return;
+  if(u.kind === 'skip'){ delete SKIPPED[u.m.id]; saveSkipped() }
+  else{ delete MARKS[u.m.id]; store.set('marks', JSON.stringify(MARKS)); syncMarks(u.m.id) }
+  DECK.unshift(u.m);
+  renderDeck(); renderTaste();
+}
+/* Un film noté ailleurs (fiche, cœur d'une affiche) disparaît de la pioche */
+function onRated(id){
+  if(MARKS[id] && DECK.some(m => m.id === id)){ DECK = DECK.filter(m => m.id !== id); if(state.view === 'pour-toi') renderDeck() }
+  if(state.view === 'pour-toi') renderTaste();
+}
+
+/* ----- Glisser la carte (doigt ou souris) ----- */
+let drag = null;
+const THRESH = 90;
+function dragKind(dx, dy){ return Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'up' : 'down') : (dy < 0 ? 'heart' : 'skip') }
+$('#deck').addEventListener('pointerdown', e => {
+  const c = e.target.closest('.dcard.top'); if(!c || DECK_BUSY || (e.pointerType === 'mouse' && e.button !== 0)) return;
+  drag = { c, id:e.pointerId, x:e.clientX, y:e.clientY, dx:0, dy:0, moved:false };
+  c.style.transition = 'none';
+  try{ c.setPointerCapture(e.pointerId) }catch(err){}
+});
+$('#deck').addEventListener('pointermove', e => {
+  if(!drag || e.pointerId !== drag.id) return;
+  drag.dx = e.clientX - drag.x; drag.dy = e.clientY - drag.y;
+  if(Math.hypot(drag.dx, drag.dy) > 6) drag.moved = true;
+  drag.c.style.transform = `translate(${drag.dx}px, ${drag.dy}px) rotate(${drag.dx / 18}deg)`;
+  const k = dragKind(drag.dx, drag.dy), d = Math.max(Math.abs(drag.dx), Math.abs(drag.dy));
+  $$('.stamp', drag.c).forEach(s => s.style.opacity = s.classList.contains('s-' + k) ? Math.min(1, d / THRESH) : 0);
+});
+function endDrag(e, cancelled){
+  if(!drag || e.pointerId !== drag.id) return;
+  const { c, dx, dy, moved } = drag; drag = null;
+  const d = Math.max(Math.abs(dx), Math.abs(dy));
+  if(!cancelled && moved && d > THRESH){ act(dragKind(dx, dy)); return }
+  c.style.transition = 'transform .3s cubic-bezier(.2,.7,.2,1)';
+  c.style.transform = '';
+  $$('.stamp', c).forEach(s => s.style.opacity = 0);
+  if(!cancelled && !moved) openDetail(+c.dataset.id);
+}
+$('#deck').addEventListener('pointerup', e => endDrag(e, false));
+$('#deck').addEventListener('pointercancel', e => endDrag(e, true));
+$('#deckActs').addEventListener('click', e => { const b = e.target.closest('[data-act]'); if(b) act(b.dataset.act) });
+$('#undoBtn').addEventListener('click', undo);
+document.addEventListener('keydown', e => {
+  if(state.view !== 'pour-toi' || $('#detail').open || $('#settings').open || e.metaKey || e.ctrlKey || e.altKey) return;
+  if(!e.target.closest || e.target.closest('input, select, textarea') || !e.target.closest('.deck-col')) return;
+  const k = { ArrowLeft:'down', ArrowRight:'up', ArrowUp:'heart', ArrowDown:'skip' }[e.key];
+  if(k){ e.preventDefault(); act(k) }
+  else if(e.key === 'Backspace'){ e.preventDefault(); undo() }
+});
+document.addEventListener('click', e => { if(e.target.closest('[data-retry-deck]')){ DECK_ERR = ''; DECK_STOP = false; renderDeck() } });
+
+/* ----- Résumé des goûts ----- */
+function renderTaste(){
+  const p = tasteProfile(), sk = Object.keys(SKIPPED).length, need = Math.max(0, MIN_RATED - p.n);
+  const rank = genreRanking(p).slice(0, 5), max = rank.length ? rank[0][1] : 1;
+  $('#taste').innerHTML = `<h2>Tes goûts</h2>
+    <p class="taste-line"><span><b>${p.n}</b> film${p.n > 1 ? 's' : ''} noté${p.n > 1 ? 's' : ''}</span><span><b>${p.c.heart}</b> ♥</span><span><b>${p.c.up}</b> 👍</span><span><b>${p.c.down}</b> 👎</span><span><b>${sk}</b> pas vu${sk > 1 ? 's' : ''}</span></p>
+    ${need
+      ? `<div class="meter" role="progressbar" aria-valuemin="0" aria-valuemax="${MIN_RATED}" aria-valuenow="${p.n}"><div style="width:${p.n / MIN_RATED * 100}%"></div></div>
+         <p class="hint">Encore ${need} film${need > 1 ? 's' : ''} noté${need > 1 ? 's' : ''} pour débloquer tes recommandations. « Pas vu » ne compte pas : note seulement les films que tu connais.</p>`
+      : rank.length
+        ? `<h3>Tes genres préférés</h3><div class="bars">${rank.map(([id, v]) => `<div class="bar"><span>${esc(GENRES[id])}</span><i style="width:${Math.max(6, v / max * 100)}%"></i></div>`).join('')}</div>
+           <p class="hint">Plus tu notes de films, plus ces recommandations deviennent justes. Tu peux modifier chaque note depuis « Ma sélection ».</p>`
+        : `<p class="hint">Note quelques films aimés pour faire apparaître tes genres préférés.</p>`}`;
+}
+
+/* ----- Recommandations : films proches de ceux que tu aimes, dans tes genres, sans les films déjà notés ----- */
+let RECO = { sig:'', list:null, pending:null };
+const sigOf = () => Object.values(MARKS).map(m => m.id + m.s).sort().join(',');
+async function buildRecos(p, force = false){
+  const sig = sigOf();
+  if(!force && RECO.sig === sig){ if(RECO.list) return RECO.list; if(RECO.pending) return RECO.pending }
+  const run = (async () => {
+    const seeds = Object.values(MARKS).filter(m => m.s === 'heart' || m.s === 'up')
+      .sort((a, b) => (b.s === 'heart') - (a.s === 'heart') || b.t - a.t).slice(0, 8);
+    const top = topGenres(p, 3), bad = badGenres(p);
+    const cand = new Map();
+    const add = (m, why, bonus) => {
+      if(!m.poster_path || MARKS[m.id]) return;
+      const c = cand.get(m.id) || { m, bonus:0, why:'' };
+      c.bonus += bonus; if(!c.why) c.why = why;
+      cand.set(m.id, c);
+    };
+    const jobs = seeds.map(s => limit(() => tmdb(`/movie/${s.id}`, { append_to_response:'recommendations' }))
+      .then(d => (d.recommendations?.results || []).forEach(m => add(m, `Parce que tu as aimé ${s.title}`, 1))).catch(() => {}));
+    if(top.length){
+      const base = { sort_by:'popularity.desc', 'vote_count.gte':400, 'vote_average.gte':6.8, 'primary_release_date.lte':iso(today) };
+      if(bad.length) base.without_genres = bad.join(',');
+      jobs.push(discover({ ...base, with_genres:top.slice(0, 2).join(',') }).then(d => d.results.forEach(m => add(m, 'Dans tes genres préférés', 0))).catch(() => {}));
+      jobs.push(discover({ ...base, with_genres:top[0], page:2 }).then(d => d.results.forEach(m => add(m, 'Dans tes genres préférés', 0))).catch(() => {}));
+    }
+    await Promise.all(jobs);
+    if(!cand.size) throw new Error('Impossible de calculer tes recommandations pour le moment. Réessaie dans un instant.');
+    const score = c => {
+      const gs = c.m.genre_ids || [];
+      const g = gs.reduce((s, id) => s + (p.g[id] || 0), 0) / (p.maxG * Math.max(1, gs.length));
+      const l = (p.lang[c.m.original_language] || 0) / p.maxL;
+      return { c, g, s:c.bonus * 2 + g * 3 + l * .5 + ((c.m.vote_average || 0) - 6.5) * .4 + Math.random() * .4 };
+    };
+    return [...cand.values()].map(score).filter(x => (x.c.m.vote_average || 0) >= 6 && x.g > -.5)
+      .sort((a, b) => b.s - a.s).slice(0, 24).map(x => ({ ...x.c.m, _why:x.c.why }));
+  })();
+  RECO.sig = sig; RECO.pending = run;
+  try{ const list = await run; RECO.list = list; return list }
+  finally{ RECO.pending = null }
+}
+async function renderReco(force = false){
+  const sec = $('#recoSec'), grid = $('#recoGrid'), p = tasteProfile();
+  if(p.n < MIN_RATED){ sec.hidden = true; return }
+  sec.hidden = false;
+  if(!force && RECO.sig === sigOf() && RECO.list && grid.children.length && !grid.querySelector('.sk, .state')) return;
+  grid.innerHTML = skeletons(12);
+  try{
+    const list = await buildRecos(p, force);
+    grid.innerHTML = list.length ? list.map((m, i) => cardHTML(m, { i })).join('') : stateHTML('', 'Pas encore de suggestion', 'Note quelques films de plus pour affiner tes recommandations.');
+    afterInsert(grid);
+  }catch(e){
+    grid.innerHTML = stateHTML('err', 'Recommandations indisponibles', e.message, `<button class="btn" type="button" data-retry-reco>Réessayer</button>`);
+  }
+}
+function maybeReco(){ const n = tasteProfile().n; if(n >= MIN_RATED && (n === MIN_RATED || n % 5 === 0)) renderReco() }
+$('#recoRefresh').addEventListener('click', () => renderReco(true));
+document.addEventListener('click', e => { if(e.target.closest('[data-retry-reco]')) renderReco(true) });
+
+/* ----- Rangée « Pour toi » sur l'accueil ----- */
+async function ensureForYouRow(){
+  if(!homeBuilt || !hasAccess()) return;
+  const rows = $('#homeRows'), p = tasteProfile();
+  $('#tasteBand')?.remove();
+  if(p.n < MIN_RATED){
+    $('[data-row="foryou"]')?.remove();
+    const need = MIN_RATED - p.n;
+    rows.insertAdjacentHTML('afterbegin', `<section class="surprise-band" id="tasteBand"><div><h2>✨ Des films choisis pour toi</h2><p>Dis-nous en quelques secondes quels films tu as vus et aimés. ${need} réponse${need > 1 ? 's' : ''} suffi${need > 1 ? 'sent' : 't'} pour débloquer une sélection faite pour toi.</p></div><a class="btn primary" href="#pour-toi">${ico('spark')}Commencer</a></section>`);
+    return;
+  }
+  let sec = $('[data-row="foryou"]');
+  if(!sec){ rows.insertAdjacentHTML('afterbegin', railSection('foryou', '✨ Pour toi', "Choisis d'après tes coups de cœur et les films que tu as aimés.")); sec = $('[data-row="foryou"]') }
+  try{
+    const list = await buildRecos(p);
+    if(!list.length){ sec.remove(); return }
+    fillRail(sec.querySelector('.rail'), list.slice(0, 20));
+  }catch(e){ sec.remove() }
+}
+
+function renderForYou(){
+  DECK_ERR = ''; DECK_STOP = false;
+  renderTaste(); renderDeck(); renderReco();
+  if(window.matchMedia('(pointer:fine)').matches) $('#deck').focus({ preventScroll:true });
 }
 
 /* =====================================================================
@@ -1271,23 +1670,21 @@ $('#hdrSettings').addEventListener('click', openSettings);
 /* =====================================================================
    Navigation (adresses #accueil, #tendances, #decouvrir, #selection)
    ===================================================================== */
-const VIEWS = { accueil:'v-accueil', tendances:'v-explore', decouvrir:'v-explore', selection:'v-selection' };
+const VIEWS = { accueil:'v-accueil', explorer:'v-explore', 'pour-toi':'v-foryou', selection:'v-selection' };
 let exploreLoaded = false;
 function route(){
   let h = location.hash.slice(1);
+  if(h === 'tendances' || h === 'decouvrir'){ h = 'explorer'; history.replaceState(null, '', '#explorer') }
   if(!VIEWS[h]) h = 'accueil';
   const prevView = state.view;
   state.view = h;
   $$('[data-view]').forEach(v => v.hidden = v.id !== VIEWS[h]);
   $$('[data-nav]').forEach(a => a.dataset.nav === h ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
   if(h === 'accueil') renderHome();
-  if(h === 'tendances' || h === 'decouvrir'){
-    const disc = h === 'decouvrir';
-    $('#exTitle').textContent = disc ? 'Découvrir' : 'Tendances';
-    $('#exSub').textContent = disc ? 'Cherche un titre ou affine avec les filtres pour trouver le film qui te correspond.' : 'Ce que le public regarde, du jour même à tous les temps.';
-    if(disc && prevView !== 'decouvrir') setPanel(true);
+  if(h === 'explorer'){
     if(!exploreLoaded){ exploreLoaded = true; loadExplore(true) }
   }
+  if(h === 'pour-toi') renderForYou();
   if(h === 'selection') renderSelection();
   if(prevView !== h) window.scrollTo({ top:0, behavior:'instant' in window ? 'instant' : 'auto' });
 }
@@ -1296,7 +1693,7 @@ function goExplore(opts){
   Object.assign(state, { query:'', sort:'auto', where:'' }, opts);
   syncControls();
   exploreLoaded = true;
-  if(location.hash !== '#tendances') location.hash = 'tendances'; else route();
+  if(location.hash !== '#explorer') location.hash = 'explorer'; else route();
   loadExplore(true);
 }
 
@@ -1337,7 +1734,7 @@ $('#sheet').addEventListener('click', e => {
 });
 
 $('#hdrSearch').addEventListener('click', () => {
-  if(location.hash !== '#decouvrir') location.hash = 'decouvrir';
+  if(location.hash !== '#explorer') location.hash = 'explorer';
   setTimeout(() => $('#q').focus(), 60);
 });
 let qT;
@@ -1357,6 +1754,8 @@ $('#periods').addEventListener('click', e => {
 });
 $('#sort').addEventListener('change', e => { state.sort = e.target.value; loadExplore(true) });
 $('#hideSeen').addEventListener('change', e => { state.hideSeen = e.target.checked; store.set('hideSeen', e.target.checked ? '1' : '0'); loadExplore(true) });
+$('#miniSum').addEventListener('click', () => setCollapsed(false));
+$('#collapseBtn').addEventListener('click', () => setCollapsed(!$('#v-explore').classList.contains('collapsed')));
 $('#filtersBtn').addEventListener('click', () => setPanel(!$('#panel').classList.contains('open')));
 $('#panelDone').addEventListener('click', () => { setPanel(false); $('.results').scrollIntoView({ behavior:'smooth', block:'start' }) });
 $('#genres').addEventListener('click', e => {
@@ -1410,6 +1809,7 @@ async function initData(){
   renderPeriods();
   buildFilterUI();
   setPanel(store.get('panelOpen') === '1');
+  if(store.get('exCollapsed') === '1') setCollapsed(true);
   updateFavDot();
   if(PROXY) $('#keySection').hidden = true;
   if(hasAccess()) await initData();
