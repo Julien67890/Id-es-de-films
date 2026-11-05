@@ -549,7 +549,7 @@ dialog[open]{animation:dlg .3s cubic-bezier(.2,.7,.2,1)}
   <div class="panel-sheet">
     <h2 id="setTitle">Paramètres</h2>
     <p class="sub">Connexion aux données et préférences d'affichage.</p>
-    <div class="set">
+    <div class="set" id="keySection">
       <h3>Clé TMDB</h3>
       <ol>
         <li>Crée un compte gratuit sur <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a>.</li>
@@ -588,7 +588,11 @@ dialog[open]{animation:dlg .3s cubic-bezier(.2,.7,.2,1)}
 /* =====================================================================
    Outils
    ===================================================================== */
-const API = 'https://api.themoviedb.org/3';
+/* Relais Cloudflare Worker (voir worker.js) : colle ici son adresse, par exemple
+   'https://idees-de-films.TON-COMPTE.workers.dev'. Une fois renseigné, la clé TMDB reste côté serveur
+   et les visiteurs n'ont rien à configurer. Laisse vide pour saisir ta clé dans les paramètres. */
+const PROXY = '';
+const API = PROXY ? PROXY.replace(/\/$/, '') + '/3' : 'https://api.themoviedb.org/3';
 const IMG = 'https://image.tmdb.org/t/p/';
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -615,19 +619,20 @@ function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add
 /* =====================================================================
    Accès TMDB (avec cache mémoire et limite de requêtes simultanées)
    ===================================================================== */
-const apiKey = () => store.get('tmdbKey') || '';
+const apiKey = () => PROXY ? '' : (store.get('tmdbKey') || '');
+const hasAccess = () => !!(PROXY || apiKey());
 const CACHE = new Map();
 function tmdb(path, params = {}, { fresh = false } = {}){
   const key = apiKey();
-  if(!key) return Promise.reject(new Error('Ajoute ta clé TMDB dans les paramètres pour charger les films.'));
+  if(!PROXY && !key) return Promise.reject(new Error('Ajoute ta clé TMDB dans les paramètres pour charger les films.'));
   const url = new URL(API + path);
   const token = key.startsWith('eyJ');
-  if(!token) url.searchParams.set('api_key', key);
+  if(!PROXY && !token) url.searchParams.set('api_key', key);
   url.searchParams.set('language', 'fr-FR');
   for(const [k, v] of Object.entries(params)) if(v !== '' && v != null) url.searchParams.set(k, v);
   const ck = url.toString();
   if(!fresh && CACHE.has(ck)) return CACHE.get(ck);
-  const p = fetch(url, token ? { headers:{ Authorization:'Bearer ' + key } } : {})
+  const p = fetch(url, !PROXY && token ? { headers:{ Authorization:'Bearer ' + key } } : {})
     .catch(() => { throw new Error('Connexion à TMDB impossible. Vérifie ta connexion internet puis réessaie.') })
     .then(r => {
       if(r.status === 401) throw new Error('Ta clé TMDB est refusée. Vérifie-la dans les paramètres.');
@@ -836,7 +841,7 @@ const HOME_ROWS = [
 
 function renderHome(){
   const rows = $('#homeRows');
-  if(!apiKey()){
+  if(!hasAccess()){
     $('#heroFilm').hidden = true;
     rows.innerHTML = stateHTML('', 'Branche le projecteur', "Le site lit ses films sur TMDB. Ajoute ta clé gratuite dans les paramètres pour afficher les tendances, les pépites et les films en streaming.",
       `<button class="btn primary" type="button" data-open-settings>${ico('gear')}Ouvrir les paramètres</button>`) +
@@ -980,7 +985,7 @@ function renderNote(){
 }
 let loadToken = 0;
 async function loadExplore(reset){
-  if(!apiKey()){
+  if(!hasAccess()){
     $('#grid').innerHTML = stateHTML('', 'Connecte TMDB pour explorer', 'Ajoute ta clé gratuite dans les paramètres pour charger les films.', `<button class="btn primary" type="button" data-open-settings>${ico('gear')}Ouvrir les paramètres</button>`);
     $('#moreBtn').hidden = true;
     return;
@@ -1195,7 +1200,7 @@ $('#detail').addEventListener('click', e => { if(e.target === e.currentTarget) e
    Surprends-moi : tirage parmi les films correspondant aux filtres actifs
    ===================================================================== */
 async function surprise(btn){
-  if(!apiKey()){ openSettings(); return }
+  if(!hasAccess()){ openSettings(); return }
   btn && (btn.disabled = true);
   try{
     let pool;
@@ -1406,7 +1411,8 @@ async function initData(){
   buildFilterUI();
   setPanel(store.get('panelOpen') === '1');
   updateFavDot();
-  if(apiKey()) await initData();
+  if(PROXY) $('#keySection').hidden = true;
+  if(hasAccess()) await initData();
   route();
 })();
 </script>
