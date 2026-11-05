@@ -241,6 +241,40 @@ svg.i{width:20px;height:20px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-
 .panel.open{grid-template-rows:1fr}
 .panel > div{overflow:hidden;min-height:0}
 .panel-in{margin-top:16px;padding:22px;border-radius:var(--r);background:var(--bg-2);border:1px solid var(--line);display:grid;gap:22px}
+
+/* Filtres en liste compacte */
+.panel-in{padding:6px 18px;gap:0}
+.fl{display:grid;grid-template-columns:1fr 1fr;column-gap:36px;align-items:start}
+.fd{display:block;border-bottom:1px solid var(--line);min-width:0}
+.fd-h{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;background:none;border:0;padding:0;color:var(--fg);text-align:left}
+.fd-t{font-weight:700;font-size:15px;flex:1 1 auto;white-space:nowrap}
+.fd-v{color:var(--muted);font-size:14px;font-weight:600;text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%}
+.fd-v.on{color:var(--accent)}
+.fd-h .chev{width:18px;height:18px;flex:none;color:var(--muted);transition:transform .25s}
+.fd-h[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.fd-b{display:grid;grid-template-rows:0fr;transition:grid-template-rows .28s cubic-bezier(.2,.7,.2,1)}
+.fd-b > div{overflow:hidden;min-height:0}
+.fd-h[aria-expanded="true"] + .fd-b{grid-template-rows:1fr}
+.fd-in{display:grid;gap:12px;padding:2px 2px 16px}
+.fd-in .chips{max-height:min(46vh,340px);overflow:auto;overscroll-behavior:contain;gap:6px}
+.fd-in #genres,.fd-in #whereChips{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+#whereChips{grid-template-columns:1fr!important}
+.fd-in #genres .chip,.fd-in #whereChips .chip{display:flex;align-items:center;gap:10px;border-radius:10px;padding:10px 12px;text-align:left;background:transparent;border-color:transparent}
+.fd-in #genres .chip::before,.fd-in #whereChips .chip::before{content:"";flex:none;width:18px;height:18px;border-radius:5px;border:2px solid var(--muted);transition:all .15s}
+#whereChips .chip::before{border-radius:50%!important}
+.fd-in #genres .chip[aria-pressed="true"],.fd-in #whereChips .chip[aria-pressed="true"]{background:color-mix(in srgb, var(--accent) 14%, var(--bg-2));border-color:transparent;color:var(--fg)}
+.fd-in #genres .chip[aria-pressed="true"]::before,.fd-in #whereChips .chip[aria-pressed="true"]::before{background:var(--accent-strong) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4'%3E%3Cpath d='m5 12 5 5 9-10'/%3E%3C/svg%3E") center/12px no-repeat;border-color:var(--accent-strong)}
+.fd-sel{display:flex;align-items:center;gap:12px;min-height:52px}
+.fd-sel .switch{flex:none}
+.fd-sel .sel{flex:0 1 58%;min-width:0;height:40px;background-color:var(--card)}
+@media (max-width:760px){
+  .toolbar .sel{flex:1 1 0;min-width:0}
+  .toolbar .tx,.toolbar .spacer{display:none}
+  .toolbar{gap:8px}
+  .fl{grid-template-columns:1fr}
+  .panel-in{padding:2px 16px}
+  .fd-in .chips{max-height:52vh}
+}
 .fgroup h3{margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;font-size:14px;font-weight:600;transition:all .2s}
@@ -426,6 +460,7 @@ dialog[open]{animation:dlg .3s cubic-bezier(.2,.7,.2,1)}
   <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></symbol>
   <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
   <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
   <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></symbol>
   <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></symbol>
   <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
@@ -516,63 +551,74 @@ dialog[open]{animation:dlg .3s cubic-bezier(.2,.7,.2,1)}
           <option value="primary_release_date.desc">Les plus récents</option>
           <option value="revenue.desc">Box-office</option>
         </select>
-        <label class="switch"><input type="checkbox" id="hideSeen"> Masquer les films vus</label>
         <span class="spacer"></span>
-        <button class="btn sm primary" type="button" data-surprise><svg class="i"><use href="#i-dice"/></svg>Surprends-moi</button>
+        <button class="btn sm primary" type="button" data-surprise aria-label="Surprends-moi"><svg class="i"><use href="#i-dice"/></svg><span class="tx">Surprends-moi</span></button>
       </div>
       <div class="tags" id="tags"></div>
 
       <div class="panel" id="panel">
         <div>
           <div class="panel-in" id="panelIn" inert>
-            <div class="fgroup">
-              <h3>Genres</h3>
-              <div class="chips" id="genres"></div>
-              <label class="switch" style="margin-top:12px"><input type="checkbox" id="genreAnd"> Cumuler les genres (le film doit tous les avoir)</label>
-            </div>
-            <div class="fgroup">
-              <h3>Où le voir</h3>
-              <div class="chips" id="whereChips">
-                <button class="chip" type="button" data-where="" aria-pressed="true">Partout</button>
-                <button class="chip" type="button" data-where="cinema" aria-pressed="false">Au cinéma en ce moment</button>
-                <button class="chip" type="button" data-where="streaming" aria-pressed="false">En streaming (abonnement)</button>
-                <button class="chip" type="button" data-where="rent" aria-pressed="false">Location ou achat</button>
-              </div>
-            </div>
-            <div class="fcols">
-              <div class="field">
-                <span class="lab">Années de sortie</span>
-                <div class="yrs">
-                  <input type="number" id="yFrom" inputmode="numeric" placeholder="De" min="1900" max="2100" aria-label="Année de début">
-                  <span>–</span>
-                  <input type="number" id="yTo" inputmode="numeric" placeholder="À" min="1900" max="2100" aria-label="Année de fin">
-                </div>
-                <div class="chips" id="decades"></div>
-              </div>
-              <div class="field">
-                <label for="minVote">Note minimale <output id="minVoteOut">Toutes</output></label>
-                <input type="range" id="minVote" min="0" max="9" step="0.5" value="0">
-                <label for="rtMax">Durée <output id="rtOut">Toutes</output></label>
-                <input type="range" id="rtMin" min="0" max="240" step="10" value="0" aria-label="Durée minimale">
-                <input type="range" id="rtMax" min="60" max="240" step="10" value="240" aria-label="Durée maximale">
-              </div>
-              <div class="field">
-                <label for="country">Pays d'origine</label>
-                <select class="sel" id="country"></select>
-                <label for="lang">Langue originale</label>
-                <select class="sel" id="lang"></select>
-                <label for="cert">Public</label>
+            <div class="fl">
+              <section class="fd">
+                <button class="fd-h" type="button" aria-expanded="false"><span class="fd-t">Genres</span><span class="fd-v" id="sumGenres">Tous</span><svg class="i chev"><use href="#i-down"/></svg></button>
+                <div class="fd-b"><div><div class="fd-in">
+                  <div class="chips" id="genres"></div>
+                  <label class="switch"><input type="checkbox" id="genreAnd"> Cumuler les genres (le film doit tous les avoir)</label>
+                </div></div></div>
+              </section>
+              <section class="fd">
+                <button class="fd-h" type="button" aria-expanded="false"><span class="fd-t">Où le voir</span><span class="fd-v" id="sumWhere">Partout</span><svg class="i chev"><use href="#i-down"/></svg></button>
+                <div class="fd-b"><div><div class="fd-in">
+                  <div class="chips" id="whereChips">
+                    <button class="chip" type="button" data-where="" aria-pressed="true">Partout</button>
+                    <button class="chip" type="button" data-where="cinema" aria-pressed="false">Au cinéma en ce moment</button>
+                    <button class="chip" type="button" data-where="streaming" aria-pressed="false">En streaming (abonnement)</button>
+                    <button class="chip" type="button" data-where="rent" aria-pressed="false">Location ou achat</button>
+                  </div>
+                </div></div></div>
+              </section>
+              <section class="fd">
+                <button class="fd-h" type="button" aria-expanded="false"><span class="fd-t">Années de sortie</span><span class="fd-v" id="sumYears">Toutes</span><svg class="i chev"><use href="#i-down"/></svg></button>
+                <div class="fd-b"><div><div class="fd-in">
+                  <div class="yrs">
+                    <input type="number" id="yFrom" inputmode="numeric" placeholder="De" min="1900" max="2100" aria-label="Année de début">
+                    <span>–</span>
+                    <input type="number" id="yTo" inputmode="numeric" placeholder="À" min="1900" max="2100" aria-label="Année de fin">
+                  </div>
+                  <div class="chips" id="decades"></div>
+                </div></div></div>
+              </section>
+              <section class="fd">
+                <button class="fd-h" type="button" aria-expanded="false"><span class="fd-t">Note minimale</span><span class="fd-v"><output id="minVoteOut">Toutes</output></span><svg class="i chev"><use href="#i-down"/></svg></button>
+                <div class="fd-b"><div><div class="fd-in">
+                  <input type="range" id="minVote" min="0" max="9" step="0.5" value="0" aria-label="Note minimale">
+                </div></div></div>
+              </section>
+              <section class="fd">
+                <button class="fd-h" type="button" aria-expanded="false"><span class="fd-t">Durée</span><span class="fd-v"><output id="rtOut">Toutes</output></span><svg class="i chev"><use href="#i-down"/></svg></button>
+                <div class="fd-b"><div><div class="fd-in">
+                  <input type="range" id="rtMin" min="0" max="240" step="10" value="0" aria-label="Durée minimale">
+                  <input type="range" id="rtMax" min="60" max="240" step="10" value="240" aria-label="Durée maximale">
+                </div></div></div>
+              </section>
+              <label class="fd fd-sel"><span class="fd-t">Masquer les films déjà vus</span><span class="switch"><input type="checkbox" id="hideSeen" aria-label="Masquer les films déjà vus"></span></label>
+              <label class="fd fd-sel"><span class="fd-t">Pays d'origine</span><select class="sel" id="country"></select></label>
+              <label class="fd fd-sel"><span class="fd-t">Langue originale</span><select class="sel" id="lang"></select></label>
+              <label class="fd fd-sel"><span class="fd-t">Public</span>
                 <select class="sel" id="cert">
                   <option value="">Tous publics confondus</option>
                   <option value="U">Tous publics (U)</option>
                   <option value="12">Jusqu'à -12 ans</option>
                   <option value="16">Jusqu'à -16 ans</option>
                 </select>
-              </div>
-            </div>
-            <div class="fgroup">
-              <h3>Plateformes de streaming en France</h3>
-              <div class="providers" id="providers"></div>
+              </label>
+              <section class="fd">
+                <button class="fd-h" type="button" aria-expanded="false"><span class="fd-t">Plateformes</span><span class="fd-v" id="sumProv">Toutes</span><svg class="i chev"><use href="#i-down"/></svg></button>
+                <div class="fd-b"><div><div class="fd-in">
+                  <div class="providers" id="providers"></div>
+                </div></div></div>
+              </section>
             </div>
             <div class="panel-foot">
               <p class="hint" id="trendHint">Sur « Aujourd'hui » et « Cette semaine », genres, années, langue et note filtrent la liste des tendances. Avec un pays, une durée, un public ou une plateforme, la liste devient « les plus populaires du moment » qui correspondent.</p>
@@ -1169,7 +1215,7 @@ function outputs(){
 }
 function updateCount(){
   const n = filterCount();
-  $('#fCount').hidden = !n; $('#fCount').textContent = n; updateMini();
+  $('#fCount').hidden = !n; $('#fCount').textContent = n; updateMini(); updateFdSums();
 }
 function renderTags(){
   const T = [];
@@ -1203,6 +1249,16 @@ function setCollapsed(c){
   $('#miniSum').hidden = !c; updateMini();
   store.set('exCollapsed', c ? '1' : '0');
 }
+function updateFdSums(){
+  const set = (id, txt, on) => { const e = $(id); e.textContent = txt; e.classList.toggle('on', !!on) };
+  const g = $$('#genres .chip[aria-pressed="true"]').map(b => b.textContent);
+  set('#sumGenres', !g.length ? 'Tous' : g.length < 3 ? g.join(', ') : `${g.length} genres`, g.length);
+  const w = $('#whereChips .chip[aria-pressed="true"]');
+  set('#sumWhere', !state.where ? 'Partout' : w ? w.textContent.replace(/ \(.*\)| en ce moment/g, '') : '', state.where);
+  set('#sumYears', state.yFrom || state.yTo ? `${state.yFrom || '…'} – ${state.yTo || '…'}` : 'Toutes', state.yFrom || state.yTo);
+  set('#sumProv', state.providers.size ? `${state.providers.size} choisie${state.providers.size > 1 ? 's' : ''}` : 'Toutes', state.providers.size);
+  $('#minVoteOut').classList.toggle('on', !!state.minVote); $('#rtOut').classList.toggle('on', runtimeOn());
+}
 function updateMini(){
   const per = PERIODS.find(p => p.id === state.period)?.label || '';
   const n = filterCount();
@@ -1212,7 +1268,7 @@ function setPanel(open){
   $('#panel').classList.toggle('open', open);
   $('#panelIn').inert = !open;
   $('#filtersBtn').setAttribute('aria-expanded', String(open));
-  $('#filtersLbl').textContent = open ? 'Masquer les filtres' : 'Filtres';
+  
   store.set('panelOpen', open ? '1' : '0');
 }
 
@@ -1755,6 +1811,13 @@ $('#periods').addEventListener('click', e => {
 $('#sort').addEventListener('change', e => { state.sort = e.target.value; loadExplore(true) });
 $('#hideSeen').addEventListener('change', e => { state.hideSeen = e.target.checked; store.set('hideSeen', e.target.checked ? '1' : '0'); loadExplore(true) });
 $('#miniSum').addEventListener('click', () => setCollapsed(false));
+$('#panelIn').addEventListener('click', e => {
+  const h = e.target.closest('.fd-h'); if(!h) return;
+  const open = h.getAttribute('aria-expanded') !== 'true';
+  $$('#panelIn .fd-h').forEach(x => x.setAttribute('aria-expanded', 'false'));
+  h.setAttribute('aria-expanded', String(open));
+});
+$('#panelIn').addEventListener('input', () => { outputs(); updateFdSums() });
 $('#collapseBtn').addEventListener('click', () => setCollapsed(!$('#v-explore').classList.contains('collapsed')));
 $('#filtersBtn').addEventListener('click', () => setPanel(!$('#panel').classList.contains('open')));
 $('#panelDone').addEventListener('click', () => { setPanel(false); $('.results').scrollIntoView({ behavior:'smooth', block:'start' }) });
