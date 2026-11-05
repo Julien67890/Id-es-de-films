@@ -47,7 +47,14 @@ h1 span{color:var(--accent)}
 .period-note{color:var(--muted);font-size:13px;margin:4px 0 14px;min-height:1.5em}
 
 /* Barre d'actions */
-.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.f-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:-6px}
+.f-head h2{margin:0;font:600 20px/1 var(--f-display);text-transform:uppercase;letter-spacing:.04em}
+.summary{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:-4px 0 16px;font-size:13px;color:var(--muted)}
+.summary .chip{font-size:13px;padding:3px 10px;cursor:pointer}
+.summary .chip:hover{border-color:var(--muted)}
 .btn{border:1px solid var(--line);background:var(--surface-2);border-radius:6px;padding:9px 14px;cursor:pointer;font-weight:500}
 .btn:hover{border-color:var(--muted)}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
@@ -82,6 +89,11 @@ label.inline{display:flex;align-items:center;gap:8px;color:var(--muted);font-siz
 .card:hover .poster img{transform:scale(1.04)}
 .rank{position:absolute;top:0;left:0;background:var(--bg);color:var(--accent);font:800 20px/1 var(--f-display);padding:6px 9px 5px;border-bottom-right-radius:6px}
 .score{position:absolute;bottom:8px;right:8px;background:rgba(15,13,18,.85);border-radius:4px;padding:2px 7px;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
+.where{position:absolute;bottom:8px;left:8px;display:flex;align-items:center;gap:4px;max-width:calc(100% - 70px);
+  background:rgba(15,13,18,.88);border-radius:4px;padding:2px 7px;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.where img{width:18px;height:18px;border-radius:4px}
+.where[data-k="cinema"]{background:var(--accent);color:var(--accent-ink)}
+.where[data-k="soon"]{color:var(--accent)}
 .badge{position:absolute;top:8px;right:8px;width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:rgba(15,13,18,.88);font-size:15px;line-height:1}
 .badge[data-s="heart"]{color:#ff5d7a}
 .marks{display:flex;flex-wrap:wrap;gap:8px}
@@ -190,7 +202,13 @@ footer .wrap{padding-block:18px;color:var(--muted);font-size:13px;display:flex;g
       <button class="btn primary" id="surprise" type="button">Surprends-moi</button>
     </div>
 
+    <div class="summary" id="summary" hidden></div>
+
     <section class="filters" id="filters" hidden>
+      <div class="f-head">
+        <h2>Filtres</h2>
+        <button class="icon-btn" id="closeFilters" type="button">Réduire ▲</button>
+      </div>
       <div>
         <h3>Genres</h3>
         <div class="chips" id="genres"></div>
@@ -203,6 +221,15 @@ footer .wrap{padding-block:18px;color:var(--muted);font-size:13px;display:flex;g
             <input type="number" id="yFrom" placeholder="De" min="1900" max="2100" aria-label="Année de début">
             <input type="number" id="yTo" placeholder="À" min="1900" max="2100" aria-label="Année de fin">
           </div>
+        </div>
+        <div class="field">
+          <label for="where">Où le voir</label>
+          <select id="where">
+            <option value="">Partout</option>
+            <option value="cinema">Au cinéma en ce moment</option>
+            <option value="streaming">En streaming (abonnement)</option>
+            <option value="rent">En location ou achat</option>
+          </select>
         </div>
         <div class="field">
           <label for="country">Pays d'origine</label>
@@ -235,7 +262,7 @@ footer .wrap{padding-block:18px;color:var(--muted);font-size:13px;display:flex;g
         <h3>Disponible en streaming (France)</h3>
         <div class="providers" id="providers"></div>
       </div>
-      <p class="hint" id="trendHint" hidden>Pour « Aujourd'hui » et « Cette semaine », TMDB ne filtre pas côté serveur : genres, années, langue et note sont filtrés sur la liste des tendances. Le pays, la durée, le public et les plateformes s'appliquent à partir de « Ce mois-ci ».</p>
+      <p class="hint" id="trendHint" hidden>Pour « Aujourd'hui » et « Cette semaine », genres, années, langue et note sont filtrés sur la liste des tendances. Avec un pays, une durée, un public ou une plateforme, la liste devient « les plus populaires du moment » correspondant à ces critères.</p>
       <div class="filters-foot">
         <button class="btn" id="reset" type="button">Tout effacer</button>
         <button class="btn primary" id="apply" type="button">Appliquer</button>
@@ -288,6 +315,54 @@ const state = {
 };
 let GENRES = {};
 state.show = 'all';
+state.where = '';
+
+/* ---------- Où voir le film : cinéma (à l'affiche en France) ou plateformes ---------- */
+const NOW_PLAYING = new Set();
+const PROV_CACHE = new Map();
+async function loadNowPlaying(){
+  try{
+    const first = await tmdb('/movie/now_playing', { region:'FR', page:1 });
+    first.results.forEach(m => NOW_PLAYING.add(m.id));
+    const pages = Math.min(first.total_pages, 6);
+    const rest = await Promise.all(Array.from({length:pages-1}, (_,i) => tmdb('/movie/now_playing', { region:'FR', page:i+2 })));
+    rest.forEach(d => d.results.forEach(m => NOW_PLAYING.add(m.id)));
+  }catch(e){ /* l'indicateur cinéma sera simplement absent */ }
+}
+function whereStatic(m){
+  if(NOW_PLAYING.has(m.id)) return { k:'cinema', html:'Au cinéma' };
+  if(m.release_date && m.release_date > iso(today)) return { k:'soon', html:'Prochainement' };
+  return null;
+}
+async function getProviders(id){
+  if(PROV_CACHE.has(id)) return PROV_CACHE.get(id);
+  const p = tmdb(`/movie/${id}/watch/providers`).then(d => d.results?.FR || {}).catch(() => ({}));
+  PROV_CACHE.set(id, p);
+  return p;
+}
+const whereIO = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
+  entries.forEach(en => { if(en.isIntersecting){ whereIO.unobserve(en.target); fillWhere(en.target); } });
+}, { rootMargin:'300px' }) : null;
+async function fillWhere(card){
+  const el = card.querySelector('.where'); if(!el || el.dataset.k) return;
+  const fr = await getProviders(+card.dataset.id);
+  if(fr.flatrate?.length){
+    const p = fr.flatrate[0];
+    el.dataset.k = 'stream';
+    el.innerHTML = `<img src="${IMG}w45${p.logo_path}" alt="">${esc(p.provider_name)}${fr.flatrate.length > 1 ? ` +${fr.flatrate.length-1}` : ''}`;
+    el.title = 'En streaming : ' + fr.flatrate.map(x => x.provider_name).join(', ');
+  }else if(fr.rent?.length || fr.buy?.length){
+    el.dataset.k = 'rent'; el.textContent = 'Location / achat';
+  }else return;
+  el.hidden = false;
+}
+function watchWhere(root){
+  root.querySelectorAll('.card .where:not([data-k])').forEach(el => {
+    const card = el.closest('.card');
+    whereIO ? whereIO.observe(card) : fillWhere(card);
+  });
+}
+const needsServer = () => state.country || state.runtime || state.cert || state.providers.size || state.where === 'streaming' || state.where === 'rent';
 
 /* ---------- Mes films vus (stockés dans ce navigateur) ---------- */
 const MARKS_LABEL = { down:'👎', up:'👍', heart:'♥' };
@@ -324,7 +399,7 @@ function period(){ return PERIODS.find(p => p.id === state.period) }
 
 function discoverParams(page){
   const p = period();
-  const sort = state.sort === 'auto' ? p.sort : state.sort;
+  const sort = state.sort === 'auto' ? (p.sort || 'popularity.desc') : state.sort;
   const q = { page, sort_by:sort, include_adult:'false', region:'FR' };
   let from = p.from ? p.from() : '';
   let to = iso(today);
@@ -340,7 +415,9 @@ function discoverParams(page){
   else if(state.minVote) q['vote_count.gte'] = 50;
   if(state.runtime){ const [a,b] = state.runtime.split('-'); q['with_runtime.gte']=a; q['with_runtime.lte']=b; }
   if(state.cert){ q.certification_country='FR'; q['certification.lte']=state.cert; }
-  if(state.providers.size){ q.with_watch_providers=[...state.providers].join('|'); q.watch_region='FR'; q.with_watch_monetization_types='flatrate'; }
+  const monet = state.where === 'rent' ? 'rent|buy' : 'flatrate';
+  if(state.providers.size){ q.with_watch_providers=[...state.providers].join('|'); q.watch_region='FR'; q.with_watch_monetization_types=monet; }
+  else if(state.where === 'streaming' || state.where === 'rent'){ q.watch_region='FR'; q.with_watch_monetization_types=monet; }
   return q;
 }
 
@@ -360,12 +437,14 @@ function passesClientFilters(m){
 
 async function fetchPage(){
   const p = period();
-  if(p.trending){
-    // Tendances : filtrage côté client, on lit jusqu'à 3 pages pour remplir la grille
+  const cinema = state.where === 'cinema';
+  if(cinema || (p.trending && !needsServer())){
+    // Tendances ou films à l'affiche : filtrage côté client, on lit jusqu'à 3 pages pour remplir la grille
+    const path = cinema ? '/movie/now_playing' : `/trending/movie/${p.trending}`;
     let out = [];
     for(let i=0; i<3 && state.page < state.totalPages; i++){
       state.page++;
-      const d = await tmdb(`/trending/movie/${p.trending}`, { page: state.page });
+      const d = await tmdb(path, cinema ? { page: state.page, region:'FR' } : { page: state.page });
       state.totalPages = Math.min(d.total_pages, 50);
       out = out.concat(d.results.filter(passesClientFilters));
       if(!hasClientFilters() || out.length >= 12) break;
@@ -391,8 +470,10 @@ function cardHTML(m, rank){
     ? `<img loading="lazy" src="${IMG}w342${m.poster_path}" alt="">`
     : `<div class="noposter">${esc(m.title)}</div>`;
   const mk = MARKS[m.id];
+  const ws = whereStatic(m);
+  const where = ws ? `<span class="where" data-k="${ws.k}">${ws.html}</span>` : `<span class="where" hidden></span>`;
   return `<button class="card" type="button" data-id="${m.id}">
-    <div class="poster">${img}${rank ? `<span class="rank">${rank}</span>` : ''}<span class="badge" data-s="${mk?.s||''}" ${mk ? '' : 'hidden'} aria-label="Déjà vu">${mk ? MARKS_LABEL[mk.s] : ''}</span><span class="score">★ ${fmtVote(m.vote_average)}</span></div>
+    <div class="poster">${img}${rank ? `<span class="rank">${rank}</span>` : ''}<span class="badge" data-s="${mk?.s||''}" ${mk ? '' : 'hidden'} aria-label="Déjà vu">${mk ? MARKS_LABEL[mk.s] : ''}</span>${where}<span class="score">★ ${fmtVote(m.vote_average)}</span></div>
     <span class="t">${esc(m.title)}</span>
     <span class="m">${year(m.release_date)}${genres ? ' · '+esc(genres) : ''}</span>
   </button>`;
@@ -411,11 +492,15 @@ function renderPersonal(){
   grid.innerHTML = list.length
     ? list.map(m => cardHTML(m, 0)).join('')
     : `<p class="empty" style="grid-column:1/-1">Aucun film ici pour l'instant. Ouvre une fiche et indique si tu l'as vu avec 👎, 👍 ou ♥.</p>`;
+  watchWhere(grid);
 }
 
 async function load(reset){
   if(isPersonal()){ renderPersonal(); return; }
-  $('#periodNote').textContent = period().note;
+  $('#periodNote').textContent =
+    state.where === 'cinema' ? 'Films à l\'affiche dans les cinémas en France en ce moment.'
+    : period().trending && needsServer() ? 'Films les plus populaires du moment sur TMDB correspondant à tes filtres.'
+    : period().note;
   if(state.loading) return;
   state.loading = true;
   const grid = $('#grid'), more = $('#moreBtn');
@@ -434,6 +519,7 @@ async function load(reset){
     const start = state.results.length;
     state.results.push(...items);
     grid.insertAdjacentHTML('beforeend', items.map((m,i)=>cardHTML(m, start+i+1)).join(''));
+    watchWhere(grid);
     if(!state.results.length) grid.innerHTML = '<p class="empty" style="grid-column:1/-1">Aucun film ne correspond. Élargis les filtres ou change de période.</p>';
   }catch(e){
     grid.insertAdjacentHTML('beforeend', `<p class="empty err" style="grid-column:1/-1">${esc(e.message)}</p>`);
@@ -457,6 +543,16 @@ async function openDetail(id){
     const cast = (m.credits?.cast||[]).slice(0,8);
     const certFR = (m.release_dates?.results||[]).find(r=>r.iso_3166_1==='FR')?.release_dates?.find(r=>r.certification)?.certification;
     const countries = (m.production_countries||[]).map(c=>c.name).join(', ');
+    // Dates de sortie en France : 2-3 = cinéma, 4 = numérique (VOD / plateforme)
+    const frRel = (m.release_dates?.results||[]).find(r=>r.iso_3166_1==='FR')?.release_dates || [];
+    const fdate = t => { const r = frRel.filter(x=>t.includes(x.type)).sort((a,b)=>a.release_date.localeCompare(b.release_date))[0]; return r ? new Date(r.release_date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}) : '' };
+    const dCine = fdate([2,3]), dDigital = fdate([4]);
+    const inCinema = NOW_PLAYING.has(m.id);
+    const releaseLine = [
+      inCinema ? `<b style="color:var(--accent)">À l'affiche en ce moment</b>` : '',
+      dCine ? `Sortie cinéma : ${dCine}` : '',
+      dDigital ? `Sortie numérique : ${dDigital}` : ''
+    ].filter(Boolean).join(' · ');
     dlg.innerHTML = `
       <div class="d-hero" style="${m.backdrop_path ? `background-image:url(${IMG}w1280${m.backdrop_path})` : ''}">
         <button class="d-close" type="button" id="dClose">Fermer</button>
@@ -473,6 +569,7 @@ async function openDetail(id){
             ${certFR ? `<span>Public : ${esc(certFR)}</span>` : ''}
           </div>
           <div class="d-meta" style="margin-top:4px">${esc((m.genres||[]).map(g=>g.name).join(' · '))}${countries ? ' — '+esc(countries) : ''}</div>
+          ${releaseLine ? `<div class="d-meta" style="margin-top:4px">${releaseLine}</div>` : ''}
           ${m.original_title && m.original_title !== m.title ? `<div class="d-meta">Titre original : ${esc(m.original_title)}</div>` : ''}
           ${m.tagline ? `<p class="d-tagline">${esc(m.tagline)}</p>` : ''}
           <p>${esc(m.overview || 'Pas de résumé en français pour ce film.')}</p>
@@ -519,14 +616,16 @@ function renderPeriods(){
   $('#trendHint').hidden = !period().trending;
 }
 function countFilters(){
-  const n = state.genres.size + (state.yFrom||state.yTo?1:0) + (state.country?1:0) + (state.lang?1:0) + (state.minVote?1:0) + (state.runtime?1:0) + (state.cert?1:0) + (state.providers.size?1:0);
+  const n = state.genres.size + (state.yFrom||state.yTo?1:0) + (state.country?1:0) + (state.lang?1:0) + (state.minVote?1:0) + (state.runtime?1:0) + (state.cert?1:0) + (state.providers.size?1:0) + (state.where?1:0);
   $('#fCount').hidden = !n; $('#fCount').textContent = n;
+  renderSummary();
 }
 function readFilters(){
   state.genreAnd = $('#genreAnd').checked;
   state.yFrom = $('#yFrom').value; state.yTo = $('#yTo').value;
   state.country = $('#country').value; state.lang = $('#lang').value;
   state.minVote = +$('#minVote').value; state.runtime = $('#runtime').value; state.cert = $('#cert').value;
+  state.where = $('#where').value;
   countFilters();
 }
 
@@ -536,7 +635,7 @@ async function init(){
   $('#lang').innerHTML = LANGS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
   renderPeriods();
   try{
-    const [g, pv] = await Promise.all([ tmdb('/genre/movie/list'), tmdb('/watch/providers/movie', { watch_region:'FR' }) ]);
+    const [g, pv] = await Promise.all([ tmdb('/genre/movie/list'), tmdb('/watch/providers/movie', { watch_region:'FR' }), loadNowPlaying() ]);
     g.genres.forEach(x => GENRES[x.id] = x.name);
     $('#genres').innerHTML = g.genres.map(x=>`<button class="chip" type="button" data-g="${x.id}" aria-pressed="false">${esc(x.name)}</button>`).join('');
     const top = pv.results.sort((a,b)=>(a.display_priorities?.FR ?? a.display_priority) - (b.display_priorities?.FR ?? b.display_priority)).slice(0,14);
@@ -545,6 +644,7 @@ async function init(){
     $('#grid').innerHTML = `<p class="empty err" style="grid-column:1/-1">${esc(e.message)}</p>`;
     return;
   }
+  setFiltersOpen(store.get('filtersOpen') === '1');
   load(true);
 }
 
@@ -567,9 +667,33 @@ $('#sort').addEventListener('change', e=>{
   if(period().trending && state.sort !== 'auto'){ state.period = 'all'; renderPeriods(); }
   load(true);
 });
-$('#filtersBtn').addEventListener('click', e=>{
-  const f = $('#filters'); f.hidden = !f.hidden; e.currentTarget.setAttribute('aria-expanded', String(!f.hidden));
-});
+function setFiltersOpen(open){
+  $('#filters').hidden = !open;
+  $('#filtersBtn').setAttribute('aria-expanded', String(open));
+  $('#filtersBtn').firstChild.textContent = open ? 'Masquer les filtres' : 'Filtres';
+  store.set('filtersOpen', open ? '1' : '0');
+  renderSummary();
+}
+function renderSummary(){
+  const sel = id => { const s = $(id); return s.value ? s.options[s.selectedIndex].text : '' };
+  const items = [
+    ...[...state.genres].map(id => GENRES[id]),
+    state.yFrom || state.yTo ? `${state.yFrom || '…'} – ${state.yTo || '…'}` : '',
+    state.where ? sel('#where') : '',
+    state.country ? sel('#country') : '',
+    state.lang ? 'VO ' + sel('#lang').toLowerCase() : '',
+    state.minVote ? `Note ${sel('#minVote')}` : '',
+    state.runtime ? sel('#runtime') : '',
+    state.cert ? sel('#cert') : '',
+    ...[...state.providers].map(id => document.querySelector(`.prov[data-pv="${id}"]`)?.title)
+  ].filter(Boolean);
+  const sum = $('#summary');
+  sum.hidden = !$('#filters').hidden || !items.length;
+  sum.innerHTML = 'Filtres actifs : ' + items.map(t => `<button class="chip" type="button">${esc(t)}</button>`).join('');
+}
+$('#filtersBtn').addEventListener('click', ()=> setFiltersOpen($('#filters').hidden));
+$('#closeFilters').addEventListener('click', ()=> setFiltersOpen(false));
+$('#summary').addEventListener('click', e=>{ if(e.target.closest('.chip')) setFiltersOpen(true); });
 $('#genres').addEventListener('click', e=>{
   const b = e.target.closest('.chip'); if(!b) return;
   const on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', on);
@@ -583,15 +707,14 @@ $('#providers').addEventListener('click', e=>{
 $('#apply').addEventListener('click', ()=>{
   readFilters();
   // Les filtres serveur (pays, durée, public, plateformes) ne marchent pas sur les tendances
-  if(period().trending && (state.country || state.runtime || state.cert || state.providers.size)){ state.period='month'; renderPeriods(); }
   load(true);
-  if(window.innerWidth < 700){ $('#filters').hidden = true; $('#filtersBtn').setAttribute('aria-expanded','false'); }
+  if(window.innerWidth < 700) setFiltersOpen(false);
 });
 $('#reset').addEventListener('click', ()=>{
   state.genres.clear(); state.providers.clear();
   document.querySelectorAll('#genres .chip, #providers .prov').forEach(b=>b.setAttribute('aria-pressed','false'));
   ['#yFrom','#yTo'].forEach(s=>$(s).value='');
-  ['#country','#lang','#runtime','#cert'].forEach(s=>$(s).value='');
+  ['#country','#lang','#runtime','#cert','#where'].forEach(s=>$(s).value='');
   $('#minVote').value='0'; $('#genreAnd').checked=false;
   readFilters(); load(true);
 });
