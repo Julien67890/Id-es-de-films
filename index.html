@@ -591,7 +591,7 @@ dialog[open]{animation:dlg .3s cubic-bezier(.2,.7,.2,1)}
 /* Relais Cloudflare Worker (voir worker.js) : colle ici son adresse, par exemple
    'https://idees-de-films.TON-COMPTE.workers.dev'. Une fois renseigné, la clé TMDB reste côté serveur
    et les visiteurs n'ont rien à configurer. Laisse vide pour saisir ta clé dans les paramètres. */
-const PROXY = 'ideesdefilm.guioniejulien.workers.dev';
+const PROXY = 'https://ideesdefilm.guioniejulien.workers.dev';
 const API = PROXY ? PROXY.replace(/\/$/, '') + '/3' : 'https://api.themoviedb.org/3';
 const IMG = 'https://image.tmdb.org/t/p/';
 const $ = (s, r = document) => r.querySelector(s);
