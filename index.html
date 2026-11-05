@@ -317,11 +317,11 @@ input[type=range]{width:100%;accent-color:var(--accent);height:24px;margin:0}
 .stabs .seg b{font-variant-numeric:tabular-nums;margin-left:6px;opacity:.7}
 
 /* ---------- Pour toi : cartes à noter ---------- */
-.fy-top{display:grid;gap:30px;padding-block:6px 36px;justify-items:center}
+.fy-top{display:grid;gap:30px;padding-block:22px 36px;justify-items:center}
 @media (min-width:900px){.fy-top{grid-template-columns:minmax(0,440px) minmax(0,1fr);justify-items:stretch;align-items:start;gap:64px}}
 .deck-col{display:grid;gap:16px;justify-items:center;min-width:0;width:100%}
-.deck-q{margin:0;font-size:20px;font-weight:800;letter-spacing:-.01em}
-.deck{position:relative;width:max(230px, min(400px, 100%, calc((100vh - 360px) * 2 / 3)));width:max(230px, min(400px, 100%, calc((100dvh - 360px) * 2 / 3)));aspect-ratio:2/3;outline:none}
+.deck-q{margin:0;font-size:22px;font-weight:800;letter-spacing:-.01em}
+.deck{position:relative;width:max(230px, min(460px, 100%, calc((100vh - 330px) * 2 / 3)));width:max(230px, min(460px, 100%, calc((100dvh - 330px) * 2 / 3)));aspect-ratio:2/3;outline:none}
 .deck:focus-visible{outline:2px solid var(--accent);outline-offset:8px;border-radius:22px}
 .dcard{position:absolute;inset:0;border-radius:18px;overflow:hidden;background:var(--card);box-shadow:var(--shadow);touch-action:none;user-select:none;-webkit-user-select:none;
   transition:transform .3s cubic-bezier(.2,.7,.2,1), opacity .3s;will-change:transform}
@@ -331,11 +331,11 @@ input[type=range]{width:100%;accent-color:var(--accent);height:24px;margin:0}
 .dcard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
 .dcard .shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg, rgba(8,8,12,.97) 0%, rgba(8,8,12,.62) 34%, rgba(8,8,12,0) 60%)}
 .dcard.skel{background:linear-gradient(100deg, var(--card) 30%, color-mix(in srgb, var(--card) 70%, var(--fg) 8%) 50%, var(--card) 70%);background-size:300% 100%;animation:shine 1.4s linear infinite}
-.dinfo{position:absolute;left:0;right:0;bottom:0;padding:18px 18px 20px;display:grid;gap:7px;color:#F4F1ED;pointer-events:none}
-.dinfo h2{margin:0;font-size:clamp(20px, 5vw, 26px);line-height:1.1;font-weight:800;letter-spacing:-.01em;text-wrap:balance}
-.dinfo .dm{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;font-weight:700;color:#E8E5E0}
+.dinfo{position:absolute;left:0;right:0;bottom:0;padding:20px 20px 22px;display:grid;gap:9px;color:#F4F1ED;pointer-events:none}
+.dinfo h2{margin:0;font-size:clamp(25px, 6.4vw, 34px);line-height:1.08;font-weight:800;letter-spacing:-.01em;text-wrap:balance}
+.dinfo .dm{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:15px;font-weight:700;color:#E8E5E0}
 .dinfo .dm .star{color:var(--gold)}
-.dinfo .ov{margin:0;font-size:13.5px;line-height:1.45;color:#D3D0CB;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.dinfo .ov{margin:0;font-size:16px;line-height:1.45;color:#D3D0CB;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .stamp{position:absolute;z-index:3;padding:6px 12px;border:3px solid currentColor;border-radius:10px;font-weight:800;font-size:18px;letter-spacing:.08em;text-transform:uppercase;
   background:rgba(10,10,14,.4);opacity:0;pointer-events:none;white-space:nowrap}
 .stamp.s-up{top:24px;left:18px;color:#5BD6A0;transform:rotate(-12deg)}
@@ -356,7 +356,7 @@ input[type=range]{width:100%;accent-color:var(--accent);height:24px;margin:0}
 .dbtn[disabled], .link[disabled]{opacity:.4;pointer-events:none}
 .kbd{text-align:center;max-width:44ch}
 @media (pointer:coarse){.kbd{display:none}}
-@media (max-width:760px){#v-foryou .page-head p{display:none}#v-foryou .page-head{margin-bottom:0}#v-foryou .fy-top{gap:10px}.deck-col{gap:10px}.deck{width:max(200px, min(400px, 100%, calc((100vh - 400px) * 2 / 3)));width:max(200px, min(400px, 100%, calc((100dvh - 400px) * 2 / 3)))}}
+@media (max-width:760px){#v-foryou .fy-top{gap:10px}.deck-col{gap:10px}.deck{width:max(200px, min(460px, 100%, calc((100vh - 335px) * 2 / 3)));width:max(200px, min(460px, 100%, calc((100dvh - 335px) * 2 / 3)))}}
 .taste{display:grid;gap:14px;align-content:start;min-width:0;width:100%;max-width:560px}
 .taste h2{margin:0;font-size:22px;font-weight:800;letter-spacing:-.01em}
 .taste h3{margin:6px 0 0;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -646,10 +646,7 @@ dialog[open]{animation:dlg .3s cubic-bezier(.2,.7,.2,1)}
   <!-- ============ POUR TOI ============ -->
   <section id="v-foryou" data-view hidden>
     <div class="wrap">
-      <div class="page-head">
-        <h1>Pour toi</h1>
-        <p>Réponds vite à quelques films : plus tu en notes, mieux on devine ce qui te plaira.</p>
-      </div>
+      <h1 class="sr">Pour toi</h1>
       <div class="fy-top">
         <div class="deck-col">
           <p class="deck-q">Tu as vu ce film ?</p>
@@ -1368,7 +1365,7 @@ function deckCardHTML(m, i){
     ${top ? '<span class="stamp s-up">Aimé</span><span class="stamp s-down">Pas aimé</span><span class="stamp s-heart">Coup de cœur</span><span class="stamp s-skip">Pas vu</span>' : ''}
     <div class="dinfo"><h2>${esc(m.title)}</h2>
       <div class="dm">${year(m.release_date) ? `<span>${year(m.release_date)}</span>` : ''}<span class="star">★ ${fmtVote(m.vote_average)}</span>${genres ? `<span>${esc(genres)}</span>` : ''}</div>
-      ${top && m.overview ? `<p class="ov">${esc(trunc(m.overview, 170))}</p>` : ''}
+      ${top && m.overview ? `<p class="ov">${esc(trunc(m.overview, 240))}</p>` : ''}
     </div></div>`;
 }
 function renderDeck(){
