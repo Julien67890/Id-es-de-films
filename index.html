@@ -6,6 +6,11 @@
 <title>Idées de films – Quel film regarder ce soir ?</title>
 <meta name="description" content="Trouve quel film regarder ce soir : films populaires du jour, de la semaine ou de tous les temps, filtrés par genre, année, pays et plateforme (Netflix, Prime, Disney+…).">
 <meta name="theme-color" content="#101116">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Idées de films">
 <meta property="og:title" content="Idées de films – Quel film regarder ce soir ?">
 <meta property="og:description" content="Tendances, pépites cachées et films dispo en streaming en France, avec des filtres pour trouver ton prochain coup de cœur.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23101116'/%3E%3Ccircle cx='12' cy='16' r='6.5' fill='none' stroke='%23F4F1ED' stroke-width='2'/%3E%3Ccircle cx='12' cy='16' r='1.8' fill='%23F4F1ED'/%3E%3Cpath d='M19 13.5 28 9v14l-9-4.5z' fill='%23D94B55'/%3E%3C/svg%3E">
@@ -1878,6 +1883,11 @@ async function initData(){
   if(hasAccess()) await initData();
   route();
 })();
+
+/* Installation : service worker (uniquement en ligne, pas en file://) */
+if('serviceWorker' in navigator && location.protocol === 'https:'){
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
 </script>
 </body>
 </html>
